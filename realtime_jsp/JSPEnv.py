@@ -100,60 +100,6 @@ class JSPEnv(gym.Env):
         self.machine_size = 1
         # self.machines = []
 
-    # just consider 3 states now, think what to do next
-    # not used
-    def get_event_state(self, dummy, state):
-        a = 0
-        b = 2
-        N = random.randint(a, b)
-
-        x = state[0]
-        y = state[1]
-        z = state[2]
-        # ("Type is ", type(x), " ", type(y), " ", type(z))
-        # n jobs released (details to be checked)
-        if N == 0:
-            n = random.randint(self.min_num_travel, self.max_num_travel)
-            travel_jobs = self.create_jobs(n)
-            if dummy:
-                return x.append(travel_jobs), y, z
-            else:
-                if len(y) > 0:
-                    # select a job (randomly from the one which is waiting?)
-                    select_num = random.randint(0, len(y)-1)
-                    z.append(y[select_num])
-                    del y[select_num]
-                    return x.append(travel_jobs), y, z
-        # Machine idle (this should be checked according to the actual)
-        '''
-        elif N == 1:
-            if dummy:
-                # but no job to be processed
-
-                return x, y, z - 1
-            else:
-                return x, y - 1, z
-        '''
-
-        # Job arrival
-        # The logic is not quite right
-        if dummy:
-            # select a job (randomly from the one released)
-            if len(x) > 0:
-                select_num = random.randint(0, len(x)-1)
-                y.append(x[select_num])
-                del x[select_num]
-                print("Debug1 x is ", x)
-            return x, y, z
-        # select a job (randomly from the one released)
-        if len(x) > 0:
-            select_num = random.randint(0, len(x)-1)
-            print("Selected ", select_num, " xlen is ", len(x))
-            z.append(x[select_num])
-            del x[select_num]
-            print("Debug2 x is ", x)
-        return x, y, z
-
     '''
     Section 3.1 Decisions are made while 1) a job arrives at an idle machine; 2) a machine with a non-empty queue
     becomes idle. We call these points of time decision epochs. Contrarily, when a job is released or arrives at
@@ -169,6 +115,7 @@ class JSPEnv(gym.Env):
         x = self.state[0]
         y = self.state[1]
         z = self.state[2]
+        i = self.state[3] # id
         # print("Debug x ", x)
         if to_release:
             for job in released_new_jobs:
@@ -203,13 +150,13 @@ class JSPEnv(gym.Env):
                 denominator = release_time + self.real_num*self.raw_pt - t
                 r_a = numerator/denominator
 
-        self.state = np.array([x, y, z])
+        self.state = np.array([x, y, z, i+1])
         # self.state = self.get_event_state(dummy, self.state)
         # print("Check x ", x, " end ")
         num_travel = len(self.state[0])
         num_wait = len(self.state[1])
         num_process = 0
-        for m in machines:
+        for m in z:
             num_process = num_process+1 if m.idle==False else num_process
         sum_num = num_wait + num_process + num_travel
         r_s = -1 * self.price * sum_num
@@ -243,7 +190,9 @@ class JSPEnv(gym.Env):
         num_travel = random.randint(0, 6)
         travel_jobs = simulator.release_new_job(t, num_travel) # self.create_jobs(num_travel)
         # print("Debug created machine with size ", len(machines))
-        self.state = np.array([travel_jobs, wait_jobs, machines])  # np.array([num_wait, num_process, num_travel])
+        # initialize id = 0
+        i = 0
+        self.state = np.array([travel_jobs, wait_jobs, machines, i])  # np.array([num_wait, num_process, num_travel])
         return self.state
 
     '''
@@ -294,5 +243,5 @@ if __name__ == '__main__':
             if done:
                 print("Episode finished after {} timesteps".format(t + 1))
                 break
-    print("Getting reward ", reward)
+    print("Getting reward ", reward, " state id ", env.state[3])
     print("Finished!")

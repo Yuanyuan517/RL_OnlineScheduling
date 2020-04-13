@@ -16,6 +16,7 @@ class q_learning_funcs():
 
     def __init__(self, env, settings, num_episodes):
         self.env = env
+        self.settings = settings
         self.epsilon = float(settings.get('Q_learning', 'epsilon'))
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
@@ -32,43 +33,46 @@ class q_learning_funcs():
         for each action in the form of a numpy array
         of length of the action space(set of possible actions).
         """
-        def policy_function(state):
-            action_probabilities = np.ones(self.num_actions, dtype=float)*self.epsilon/num_actions
-            best_action = np.argmax(Q[state])
+        def policy_function(state_id):
+            action_probabilities = np.ones(num_actions, dtype=float)*self.epsilon/num_actions
+            # print("Type ", type(Q[state]))
+            best_action = np.argmax(Q[state_id])
             action_probabilities[best_action] += (1.0-self.epsilon)
             return action_probabilities
 
         return policy_function
 
     # Build Q-Learning Model
-    def q_learning(self, env):
+    def q_learning(self):
         """
         Q-Learning algorithm: Off-policy TD control.
         Finds the optimal greedy policy while improving
         following an epsilon-greedy policy"""
-        # Action value function
-        # A nested dictionary that maps
-        # state -> (action -> action-value).
-        Q = defaultdict(lambda: np.zeros(self.env.action_space.n))
+
 
         # Keeps track of useful statistics
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes),
             episode_rewards=np.zeros(self.num_episodes))
 
-        # Create an epsilon greedy policy function
-        # appropriately for environment action space
-        policy = self.create_epsilon_greedy_policy(Q, )
-        _conf = ConfigParser()
-        _conf.read('app.ini')
-        event_simu = Event_simulator(_conf)
+        event_simu = Event_simulator(self.settings)
 
         # For every episode
         for i_episode in range(self.num_episodes):
             # Reset the environment and pick the first action
-            state = self.env.reset(event_simu)
+            env.state = self.env.reset(event_simu)
+            # Create an epsilon greedy policy function
+            # appropriately for environment action space
+
             granularity = 1
+            num_action = len(env.state[0])+1
+            # Action value function
+            # A nested dictionary that maps
+            # state -> (action -> action-value).
+            Q = defaultdict(lambda: np.zeros(num_action))
             for t in itertools.count():
+
+                # Q = defaultdict(lambda: np.zeros(self.env.action_space.n))
                 # Check decision epoch according to events
                 # job release/job arrival (simulation strategy to be used?)
                 # /machine idle
@@ -83,32 +87,43 @@ class q_learning_funcs():
                 env.remain_raw_pt -= events[3]
 
                 # get probabilities of all actions from current state
-                action_probabilities = policy(state)
+                # if no released and waited job, then dummy action
+                if len(env.state[0]) == 0 and len(env.state[1]) == 0:
+                    action = 0
+                else:
+                    policy = self.create_epsilon_greedy_policy(Q, num_action) # plus dummy action
+                    action_probabilities = policy(env.state[3])
 
-                # choose action according to
-                # the probability distribution
-                action = np.random.choice(np.arange(
-                    len(action_probabilities)),
-                    p=action_probabilities)
+                    # choose action according to
+                    # the probability distribution
+                    action = np.random.choice(np.arange(
+                        len(action_probabilities)),
+                        p=action_probabilities)
 
                 # take action and get reward, transit to next state
                 next_state, reward, done, _ = self.env.step(action, events, t)
+
+                # update action size
+                num_action = next_state[0]
+
 
                 # Update statistics
                 stats.episode_rewards[i_episode] += reward
                 stats.episode_lengths[i_episode] = t
 
                 # TD Update
-                best_next_action = np.argmax(Q[next_state])
-                td_target = reward + discount_factor * Q[next_state][best_next_action]
-                td_delta = td_target - Q[state][action]
-                Q[state][action] += alpha * td_delta
+                best_next_action = np.argmax(Q[next_state[3]])
+                td_target = reward + self.discount_factor * Q[next_state[3]][best_next_action]
+                print("type is ", type(Q), " action ", action, " Q ", Q, " env.state[3] is ", env.state[3])
+                td_delta = td_target - Q[env.state[3]][action]
+                Q[env.state[3]][action] += self.alpha * td_delta
+                print("Now Q is ", Q)
 
                 # done is True if episode terminated
                 if done:
                     break
 
-                state = next_state
+                env.state = next_state
 
         return Q, stats
 
@@ -116,6 +131,10 @@ class q_learning_funcs():
 if __name__ == '__main__':
     matplotlib.style.use('ggplot')
     env = JSPEnv()
+    _conf = ConfigParser()
+    _conf.read('app.ini')
+    num_episode = 1#1000
     #  Train the model
-    Q_learn = q_learning_funcs(1000)
-    Q_learn.q_learning(env)
+    Q_learn = q_learning_funcs(env, _conf, num_episode)
+    Q, stats = Q_learn.q_learning()
+    plotting.plot_episode_stats(stats)

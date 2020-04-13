@@ -67,7 +67,7 @@ class Event_simulator():
             if m.idle != True:
                 job = m.assigned_job
                 remained_pt = job.pt - (t - job.start_processing_t)
-                if remained_pt == 0:
+                if remained_pt <= 0:
                     processed_pt += granularity
                     m.reset()
                 print("Debug simulator， remained pt is ", remained_pt, " machine is idle? ", m.idle)
