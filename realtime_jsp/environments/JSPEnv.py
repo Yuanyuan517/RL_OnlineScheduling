@@ -1,10 +1,9 @@
 import gym
-from gym import spaces, logger
+from gym import spaces
 import numpy as np
 import random
-from job import Job
-from machine import Machine
-from event_simulator import Event_simulator
+from realtime_jsp.environments.machines.machine import Machine
+from realtime_jsp.simulators.eventsimulator import EventSimulator
 from configparser import ConfigParser
 
 class JSPEnv(gym.Env):
@@ -100,6 +99,9 @@ class JSPEnv(gym.Env):
         self.machine_size = 1
         # self.machines = []
 
+        # April 13, create a map mapping state id to the complete state
+        self.state_dict = {}
+
     '''
     Section 3.1 Decisions are made while 1) a job arrives at an idle machine; 2) a machine with a non-empty queue
     becomes idle. We call these points of time decision epochs. Contrarily, when a job is released or arrives at
@@ -167,7 +169,7 @@ class JSPEnv(gym.Env):
         done = bool(num_wait == 0 and num_travel == 0)
         return np.array(self.state), reward, done, {}
 
-    def reset(self, simulator):
+    def reset(self, simulator, i):
         # just consider job release for now
         num_wait = 0 # random.randint(1, 6)
         # initialize num_wait new jobs
@@ -190,9 +192,9 @@ class JSPEnv(gym.Env):
         num_travel = random.randint(0, 6)
         travel_jobs = simulator.release_new_job(t, num_travel) # self.create_jobs(num_travel)
         # print("Debug created machine with size ", len(machines))
-        # initialize id = 0
-        i = 0
+
         self.state = np.array([travel_jobs, wait_jobs, machines, i])  # np.array([num_wait, num_process, num_travel])
+        self.state_dict[i] = self.state
         return self.state
 
     '''
@@ -208,14 +210,15 @@ class JSPEnv(gym.Env):
 
 if __name__ == '__main__':
     env = JSPEnv()
+    i = 0
     for i_episode in range(1):
         # iterate every time step to check if there is
         # 1) a job arrives at an idle machine;
         # 2) a machine with a non-empty queue becomes idle
         _conf = ConfigParser()
         _conf.read('app.ini')
-        event_simu = Event_simulator(_conf)
-        observation = env.reset(event_simu)
+        event_simu = EventSimulator(_conf)
+        observation = env.reset(event_simu, i)
         granularity = 1 # for calculating the remaining pt
         for t in range(100):
             print("Observation[0] is ", observation[0])
@@ -243,5 +246,6 @@ if __name__ == '__main__':
             if done:
                 print("Episode finished after {} timesteps".format(t + 1))
                 break
+            i = env.state[3] # update id, useful for the reset()
     print("Getting reward ", reward, " state id ", env.state[3])
     print("Finished!")

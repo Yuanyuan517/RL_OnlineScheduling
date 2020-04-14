@@ -1,0 +1,39 @@
+April 14th:
+
+I got some inspiration from https://www.researchgate.net/publication/338585188_Online_Single_Machine_Scheduling_Based_on_Simulation_and_Reinforcement_Learning
+
+From  the results,  we  find that  unnecessary  inputs  can  only  make  the  state
+space  even  larger  and  worsen  the performance.  So,  taking  only  the  necessary
+information  from  states  and  actions  is always the right step. The results also
+show that the objective-highly-related reward functions may not perform well,
+sometimes, even worse than other reward functions. It would be better to try and
+compare more reward functions and select the best one.
+
+(17) (PDF) Online Single Machine Scheduling Based on Simulation and Reinforcement Learning. Available from: https://www.researchgate.net/publication/338585188_Online_Single_Machine_Scheduling_Based_on_Simulation_and_Reinforcement_Learning [accessed Apr 14 2020].
+
+1. I could just use one machine but define better the reward
+    1.1 ??(Not really regarding to the inference from the paper) rewards should relate
+     to the final objective (I can start from single obj, then multiple)
+
+2. Define state in an easier way: "the state can be described by QL, QPT, QWT, or their combination."
+3. The  action  can  be  distinguished  from  their  PT,  WT,  or  both
+4. I can just use the best result from the paper
+
+ Looking inside of these four cases, they all use PT to describe the action and one (QL) or no variable represents the state
+
+ Structure of files:
+ JSPEnv.py: the state contains all scheduling information, the action contains the actions
+ selecting any waiting job or dummy action, reward is critical ratio of the selected job
+
+ JSPEnv2.py:
+    state - number of jobs in the queue, i.e., queue length (QL)
+    action - use PT/DD to describe the action? (he value of action is  only  up  to  the  PT)
+            obs in the  queue  form  an  action  set.  Selecting  one  job  to process  is  regarded  as  taking action on the set
+    reward -
+    objective - minimising maximal lateness
+    use B4: state||action||reward  QL||DD||TT
+    Queue length|| DueDate||Total tardiness so far
+
+    ? I dont understand the action set, now i just define the number of waiting jobs = number of action set
+
+

@@ -1,11 +1,15 @@
-class Job():
+from .base import Base
 
+
+class JobRelease(Base):
+
+    # no preemption allowed
     def __init__(self, release_time, pt, start_processing_t):
+        Base.__init__(self, pt, start_processing_t)
         self.release_time = release_time
-        self.pt = pt
         # self.remaining_pt = remaining_pt
         # if current_time - start_processing_pt = pt, it means finishing
-        self.start_processing_t = start_processing_t
+
        # print("Intialize done.")
 
     def to_string(self):
