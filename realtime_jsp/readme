@@ -30,10 +30,12 @@ compare more reward functions and select the best one.
     action - use PT/DD to describe the action? (he value of action is  only  up  to  the  PT)
             obs in the  queue  form  an  action  set.  Selecting  one  job  to process  is  regarded  as  taking action on the set
     reward -
-    objective - minimising maximal lateness
+    objective - minimising maximal/total? lateness
     use B4: state||action||reward  QL||DD||TT
     Queue length|| DueDate||Total tardiness so far
 
     ? I dont understand the action set, now i just define the number of waiting jobs = number of action set
 
 
+SARSA:
+https://notebooks.azure.com/ankitsuman80/projects/reinforcement-learning/html/TD/SARSA%20Solution.ipynb

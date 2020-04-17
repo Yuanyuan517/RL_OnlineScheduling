@@ -34,10 +34,17 @@ class q_learning_funcs():
         of length of the action space(set of possible actions).
         """
         def policy_function(state):
+            # TO check: cz create just happens once, but action space varies, so i dont know if create_epsilon is necessary
+            num_actions = state
             action_probabilities = np.ones(num_actions, dtype=float)*self.epsilon/num_actions
-            best_action = np.argmin(Q[state])
+            # num of Q[state] can be greater than num_actions/state cz in each step, the situation can vary
+            Q_values = Q[state][:num_actions]
+            best_action = np.argmax(Q_values)
+            print("Action_prob before is ", action_probabilities)
+            print("Best_action is ", best_action)
             print("QQ ", Q)
             action_probabilities[best_action] += (1.0-self.epsilon)
+            print("Action_prob after is ", action_probabilities)
             return action_probabilities
 
         return policy_function
@@ -65,6 +72,7 @@ class q_learning_funcs():
         granularity = 1
         # For every episode
         for i_episode in range(self.num_episodes):
+            print("New Episode!!!!!!!!!!!!")
 
             # Reset the environment and pick the first action
             env.state = self.env.reset(event_simu)
@@ -76,7 +84,7 @@ class q_learning_funcs():
             # Create an epsilon greedy policy function
             # appropriately for environment action space
 
-            for t in range(20):  # itertools.count():
+            for t in range(100):  # itertools.count():
                 # Q = defaultdict(lambda: np.zeros(self.env.action_space.n))
                 # Check decision epoch according to events
                 # job release/job arrival (simulation strategy to be used?)
@@ -129,12 +137,12 @@ class q_learning_funcs():
                     # TD Update
                    # print("Test Q ", Q)
                     print(" next state ", next_state)
-                    print(" Q[next_state] is ", Q[next_state])
+                    print(" Q[next_state] is ", Q[next_state], " env_state ", env.state)
                     if next_state >= len(Q[next_state]):
                         diff = next_state - len(Q[next_state]) + 1
                         for i in range(diff):
                             Q[next_state] = np.append(Q[next_state], 0)
-                    best_next_action = np.argmin(Q[next_state])
+                    best_next_action = np.argmax(Q[next_state])
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
                     td_delta = td_target - Q[env.state][action]
                     Q[env.state][action] += self.alpha * td_delta
@@ -154,7 +162,7 @@ if __name__ == '__main__':
     env = JSPEnv2()
     _conf = ConfigParser()
     _conf.read('./etc/app.ini')
-    num_episode =  1000
+    num_episode = 500
     #  Train the model
     Q_learn = q_learning_funcs(env, _conf, num_episode)
     Q, stats = Q_learn.q_learning(plotting)

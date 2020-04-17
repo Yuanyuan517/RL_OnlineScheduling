@@ -84,8 +84,6 @@ class JSPEnv2(gym.Env):
         # the 2nd part is 1-k
         self.price = 0.025  # price of holding one job per time unit
         self.real_num = 2.5
-        self.raw_pt = 0
-        self.remain_raw_pt = 0
 
         # TO MODIFY: use exponential distribution
         self.low = np.array([self.min_num_wait], dtype=np.float32)
@@ -124,20 +122,34 @@ class JSPEnv2(gym.Env):
         print("Job is ", self.waiting_jobs[action].to_string())
         self.machine.process_job(self.waiting_jobs[action], t)
         del self.waiting_jobs[action]
-        self.state = len(self.waiting_jobs)
+        new_state = len(self.waiting_jobs)
+        # sort jobs according to the due date, 1st one is the one with smallest due date (urgent)
+        self.waiting_jobs.sort(key=self.takeDueTime)
 
         # calculate current total tardiness as reward
         reward = 0
         for j in self.waiting_jobs:
-            reward += (t+j.pt)-j.due_t
+            tardiness = (t+j.pt)-j.due_t
+            if tardiness < 0:
+                tardiness = 0
+            reward += tardiness
+            print("At time ", t, " pt ", j.pt, " due_t ", j.due_t, " tard ", tardiness)
         processed_pt = t - self.machine.assigned_job.start_processing_t
         remained_pt = self.machine.assigned_job.pt - processed_pt
-        reward += (t+remained_pt) - self.machine.assigned_job.due_t
+        machine_job_tard = (t+remained_pt) - self.machine.assigned_job.due_t
+        if machine_job_tard < 0:
+            machine_job_tard = 0
+        reward += machine_job_tard
+        reward = -1*reward # cz this is tardiness
 
         print("Getting reward ", reward, " from action ", action)
 
-        done = bool(self.state == 0)
-        return self.state, reward, done, {}
+        done = bool(new_state == 0)
+        return new_state, reward, done, {}
+
+    def takeDueTime(self, job):
+        return job.due_t+job.pt
+
 
     def reset(self, simulator):
         # initialize machines and its job being processed
@@ -145,9 +157,6 @@ class JSPEnv2(gym.Env):
         t = 0
         machine = Machine()
         job = simulator.release_new_job(1)#self.create_jobs(1)
-        # assume the job is new, so remain_raw_pt = raw_pt
-        self.remain_raw_pt += job[0].pt
-        self.raw_pt = self.remain_raw_pt
         machine.process_job(job[0], 0)
         self.machine = machine
         # always start from 3 waiting jobs
