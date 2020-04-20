@@ -84,7 +84,7 @@ class q_learning_funcs():
             # Create an epsilon greedy policy function
             # appropriately for environment action space
 
-            for t in range(100):  # itertools.count():
+            for t in range(500):  # itertools.count():
                 # Q = defaultdict(lambda: np.zeros(self.env.action_space.n))
                 # Check decision epoch according to events
                 # job release/job arrival (simulation strategy to be used?)
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     env = JSPEnv2()
     _conf = ConfigParser()
     _conf.read('./etc/app.ini')
-    num_episode = 500
+    num_episode = 200
     #  Train the model
     Q_learn = q_learning_funcs(env, _conf, num_episode)
     Q, stats = Q_learn.q_learning(plotting)

@@ -40,7 +40,7 @@ class EventSimulator2:
             # parameter: scale = inverse of the rate parameter = mean
             pt = np.random.randint(self.min_processing_time, self.max_processing_time)
             # pt = int(np.random.exponential(self.processing_mean_time, 1))
-            due_t = int(np.random.exponential(self.min_processing_time, 1)) +pt+ self.current_time+1  # Can be modified
+            due_t = int(np.random.exponential(self.max_processing_time, 1)) +pt+ self.current_time+1  # Can be modified
             job = JobDue(due_t, pt, -1)
             jobs.append(job)
         return jobs
