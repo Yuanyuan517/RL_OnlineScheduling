@@ -9,11 +9,10 @@ from realtime_jsp.utilities.plotting import Plotting
 from realtime_jsp.simulators.utility import generate_random_seeds
 
 '''
-Based on: https://www.geeksforgeeks.org/q-learning-in-python/
+Based on: https://www.geeksforgeeks.org/sarsa-reinforcement-learning/
 '''
 
-
-class q_learning_funcs():
+class SARSA():
 
     def __init__(self, env, settings):
         self.env = env
@@ -38,25 +37,36 @@ class q_learning_funcs():
         for each action in the form of a numpy array
         of length of the action space(set of possible actions).
         """
+
         def policy_function(state):
-            # TO check: cz create just happens once, but action space varies, so i dont know if create_epsilon is necessary
             num_actions = state
-            action_probabilities = np.ones(num_actions, dtype=float)*self.epsilon/num_actions
+            action_probabilities = np.ones(num_actions, dtype=float) * self.epsilon / num_actions
             # num of Q[state] can be greater than num_actions/state cz in each step, the situation can vary
             Q_values = Q[state][:num_actions]
             best_action = np.argmax(Q_values)
-            print("Action_prob before is ", action_probabilities)
-            print("Best_action is ", best_action)
-            print("QQ ", Q)
-            action_probabilities[best_action] += (1.0-self.epsilon)
-            print("Action_prob after is ", action_probabilities)
+            #print("Action_prob before is ", action_probabilities)
+            #print("Best_action is ", best_action)
+            #print("QQ ", Q)
+            action_probabilities[best_action] += (1.0 - self.epsilon)
+            #print("Action_prob after is ", action_probabilities)
             return action_probabilities
 
         return policy_function
 
+    # TO CHECK: possible and only difference between SARSA and Q learning
+    # Function to choose the next action
+    def choose_action(self, Q, state):
+        action = 0
+        num_actions = state
+        if np.random.uniform(0, 1) < self.epsilon:
+            action = np.random.random_integers(0, num_actions, 1)
+        else:
+            Q_values = Q[state][:num_actions]
+            action = np.argmax(Q_values)
+        return action
 
-    # Build Q-Learning Model
-    def q_learning(self, plotting):
+        # Build sarsa  Model
+    def sarsa_model(self, plotting):
         """
         Q-Learning algorithm: Off-policy TD control.
         Finds the optimal greedy policy while improving
@@ -69,8 +79,8 @@ class q_learning_funcs():
             episode_rewards=np.zeros(self.num_episodes_train))
 
         event_simu = EventSimulator2(self.settings)
+        total_tardiness = 0  # tardiness of all finished jobs
         event_simu.set_randomness(True)
-        total_tardiness = 0 # tardiness of all finished jobs
 
         # Action value function
         # A nested dictionary that maps
@@ -86,7 +96,7 @@ class q_learning_funcs():
             env.state = self.env.reset(event_simu)
             if Q is None:
                 Q = defaultdict(lambda: np.zeros(env.state))
-              #  print("Q is ", Q)
+                #print("Q is ", Q)
                 policy = self.create_epsilon_greedy_policy(Q)
 
             # Create an epsilon greedy policy function
@@ -104,20 +114,20 @@ class q_learning_funcs():
                 # for new_job in released_new_job
                 env.machine = events[2]
                 tardiness = events[4]
-               # print(" env waiting size ", len(env.waiting_jobs))
+                #print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
                         env.waiting_jobs.append(job)
                 env.state = len(env.waiting_jobs)
-                print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
+               # print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
                 # env.remain_raw_pt -= events[3]
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
                 if env.state == 0 or env.machine.idle is False:
-                    #pass
+                    pass
                     # action = 0
-                    print("Action is 0")
+                   # print("Action is 0")
                 else:
                     action_probabilities = policy(env.state)
                    # print("Action prob is ", action_probabilities)
@@ -149,7 +159,7 @@ class q_learning_funcs():
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     stats.episode_rewards[i_episode] = max_tardinees
-                    #stats.episode_rewards[i_episode] = reward
+                    # print("Tardi is ", tardi, " max tardi is ", max_tardinees)
 
                     # done is True if episode terminated
                     if done:
@@ -157,27 +167,28 @@ class q_learning_funcs():
                         break
 
                     # TD Update
-                   # print("Test Q ", Q)
-                   # print(" next state ", next_state)
-                   # print(" Q[next_state] is ", Q[next_state], " env_state ", env.state)
+                    # print("Test Q ", Q)
+                    #print(" next state ", next_state)
+                    #print(" Q[next_state] is ", Q[next_state], " env_state ", env.state)
                     if next_state >= len(Q[next_state]):
                         diff = next_state - len(Q[next_state]) + 1
                         for i in range(diff):
                             Q[next_state] = np.append(Q[next_state], 0)
-                    best_next_action = np.argmax(Q[next_state])
+
+                    best_next_action = self.choose_action(Q, next_state)# np.argmax(Q[next_state])
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
                     td_delta = td_target - Q[env.state][action]
                     Q[env.state][action] += self.alpha * td_delta
-                  #  print("Now Q is ", Q)
+                   # print("Now Q is ", Q)
 
 
 
                     env.state = next_state
-                   # print("State updated to ", env.state)
+                    #print("State updated to ", env.state)
 
         return Q, stats
 
-    def q_learning_fixed_seed(self, Q, plotting):
+    def sarsa_fixed_seed(self, Q, plotting):
         """
         Q-Learning algorithm: Off-policy TD control.
         Finds the optimal greedy policy while improving
@@ -191,7 +202,7 @@ class q_learning_funcs():
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)
-        total_tardiness = 0 # tardiness of all finished jobs
+
 
         # Action value function
         # A nested dictionary that maps
@@ -202,6 +213,7 @@ class q_learning_funcs():
             print("New Episode!!!!!!!!!!!! ", i_episode)
             total_tardiness = 0  # tardiness of all finished jobs
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
+
             # Reset the environment and pick the first action
             env.state = self.env.reset(event_simu)
             policy = self.create_epsilon_greedy_policy(Q)
@@ -222,12 +234,12 @@ class q_learning_funcs():
                 # for new_job in released_new_job
                 env.machine = events[2]
                 tardiness = events[4]
-               # print(" env waiting size ", len(env.waiting_jobs))
+                #print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
                         env.waiting_jobs.append(job)
                 env.state = len(env.waiting_jobs)
-               # print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
+                #print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
                 # env.remain_raw_pt -= events[3]
 
                 # get probabilities of all actions from current state
@@ -267,48 +279,53 @@ class q_learning_funcs():
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     stats.episode_rewards[i_episode] = max_tardinees
-                    #stats.episode_rewards[i_episode] = reward
+                    #print("Tardi is ", tardi, " max tardi is ", max_tardinees)
 
                     # done is True if episode terminated
                     if done:
+                        print("Episode finished")
                         break
 
                     # TD Update
                    # print("Test Q ", Q)
-                    #print(" next state ", next_state)
-                   # print(" Q[next_state] is ", Q[next_state], " env_state ", env.state)
+                   # print(" next state ", next_state)
+                    #print(" Q[next_state] is ", Q[next_state], " env_state ", env.state)
                     if next_state >= len(Q[next_state]):
                         diff = next_state - len(Q[next_state]) + 1
                         for i in range(diff):
                             Q[next_state] = np.append(Q[next_state], 0)
-                    best_next_action = np.argmax(Q[next_state])
+
+                    best_next_action = self.choose_action(Q, next_state)# np.argmax(Q[next_state])
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
                     td_delta = td_target - Q[env.state][action]
                     Q[env.state][action] += self.alpha * td_delta
-                   # print("Now Q is ", Q)
+                    #print("Now Q is ", Q)
+
+
+
                     env.state = next_state
-                   # print("State updated to ", env.state)
+                    #print("State updated to ", env.state)
 
         return Q, stats
-
 
 if __name__ == '__main__':
     matplotlib.style.use('ggplot')
     plotting = Plotting()
     env = JSPEnv2()
     _conf = ConfigParser()
-    _conf.read('./etc/app.ini')
-    # num_episode = 500
+    res = _conf.read('/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp'
+                     '/etc/app.ini')
+    print(res)
     #  Train the model
-    Q_learn = q_learning_funcs(env, _conf)
-    # event simulator is not fixed
-    Q, stats = Q_learn.q_learning(plotting)
+    sarsa_train = SARSA(env, _conf)
+    Q, stats = sarsa_train.sarsa_model(plotting)
     print("stats ", stats)
     plotting.plot_episode_stats(stats)
 
     # event simulator is fixed
     # test the model with calculated Q
-    # Q_learn.num_episodes = 10
-    Q2, stats2 = Q_learn.q_learning_fixed_seed(Q, plotting)
+    Q2, stats2 = sarsa_train.sarsa_fixed_seed(Q, plotting)
     print("New Stats", stats2)
     plotting.plot_episode_stats(stats2)
+
+

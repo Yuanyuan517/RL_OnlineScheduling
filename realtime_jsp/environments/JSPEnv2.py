@@ -98,6 +98,9 @@ class JSPEnv2(gym.Env):
         # self.machine_size = 1
         self.machine = None
 
+        # April 20, 2020, record total tardiness in each episode
+        self.TT = 0
+
     '''
     Section 3.1 Decisions are made while 1) a job arrives at an idle machine; 2) a machine with a non-empty queue
     becomes idle. We call these points of time decision epochs. Contrarily, when a job is released or arrives at
@@ -106,26 +109,36 @@ class JSPEnv2(gym.Env):
     '''
 
     # no dummy action considered
-    # TO MODIFY: current version doesnt consider the change of y in state since there is only a machine
     def step(self, action, events, t):
         # assert self.action_space.contains(action), "%r (%s) invalid" % (action, type(action))
         # TO DO: change to multiple machines
         to_release, released_new_jobs, next_interarrival_time, idles = events[0], events[1], events[2], events[3]
         # print("Debug x ", x)
+        '''
         if to_release:
             for job in released_new_jobs:
                 self.waiting_jobs.append(job)
             print("Debug x after releasing ", self.state)
-       # if self.machine.idle:
+        '''
+        # if self.machine.idle:
         # action maps which job to select
-        print("Machine is idle. Debug action ", action, " waiting size ", len(self.waiting_jobs))
-        print("Job is ", self.waiting_jobs[action].to_string())
-        self.machine.process_job(self.waiting_jobs[action], t)
-        del self.waiting_jobs[action]
-        new_state = len(self.waiting_jobs)
+        print("In JSPEnv2, Machine is idle. Debug action ", action, " waiting size ", len(self.waiting_jobs))
+        # print("In JSPEnv2, Job is ", self.waiting_jobs[action].to_string())
+        if action != -1:
+            self.machine.process_job(self.waiting_jobs[action], t)
+            del self.waiting_jobs[action]
+
         # sort jobs according to the due date, 1st one is the one with smallest due date (urgent)
         self.waiting_jobs.sort(key=self.takeDueTime)
+        # if EDD
+        if action == -1:
+            self.machine.process_job(self.waiting_jobs[0], t)
+            del self.waiting_jobs[0]
+        new_state = len(self.waiting_jobs)
 
+        # April/21/2020, only calculate the tardiness of finished job + the just assigned one
+        tardi = self.machine.assigned_job.pt + self.machine.assigned_job.start_processing_t - t
+        '''
         # calculate current total tardiness as reward
         reward = 0
         for j in self.waiting_jobs:
@@ -141,11 +154,10 @@ class JSPEnv2(gym.Env):
             machine_job_tard = 0
         reward += machine_job_tard
         reward = -1*reward # cz this is tardiness
-
         print("Getting reward ", reward, " from action ", action)
-
+        '''
         done = bool(new_state == 0)
-        return new_state, reward, done, {}
+        return new_state, tardi, done, {}
 
     def takeDueTime(self, job):
         return job.due_t+job.pt
@@ -153,8 +165,8 @@ class JSPEnv2(gym.Env):
 
     def reset(self, simulator):
         # initialize machines and its job being processed
-        # reset from time t = 0
-        t = 0
+        # reset time t = 0, seed = 0
+        simulator.reset()
         machine = Machine()
         job = simulator.release_new_job(1)#self.create_jobs(1)
         machine.process_job(job[0], 0)
@@ -164,7 +176,7 @@ class JSPEnv2(gym.Env):
         # print("Debug created machine with size ", len(machines))
         self.action_space = spaces.Discrete(len(self.waiting_jobs))
         self.state = len(self.waiting_jobs)+1 # plus dummy one  #np.array([travel_jobs, wait_jobs, machines, i])  # np.array([num_wait, num_process, num_travel])
-
+        self.TT = 0
         return self.state
 
     '''
