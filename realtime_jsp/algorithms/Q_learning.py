@@ -25,7 +25,7 @@ class q_learning_funcs():
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
-        self.seeds = generate_random_seeds(self.initial_seed, self.size_time_steps)
+        self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
 
     # Make the $\epsilon$-greedy policy
     def create_epsilon_greedy_policy(self, Q):
@@ -45,11 +45,11 @@ class q_learning_funcs():
             # num of Q[state] can be greater than num_actions/state cz in each step, the situation can vary
             Q_values = Q[state][:num_actions]
             best_action = np.argmax(Q_values)
-            print("Action_prob before is ", action_probabilities)
-            print("Best_action is ", best_action)
-            print("QQ ", Q)
+            #print("Action_prob before is ", action_probabilities)
+            #print("Best_action is ", best_action)
+            #print("QQ ", Q)
             action_probabilities[best_action] += (1.0-self.epsilon)
-            print("Action_prob after is ", action_probabilities)
+            #print("Action_prob after is ", action_probabilities)
             return action_probabilities
 
         return policy_function
@@ -109,15 +109,15 @@ class q_learning_funcs():
                     for job in events[1]:
                         env.waiting_jobs.append(job)
                 env.state = len(env.waiting_jobs)
-                print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
+               # print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
                 # env.remain_raw_pt -= events[3]
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
                 if env.state == 0 or env.machine.idle is False:
-                    #pass
+                    pass
                     # action = 0
-                    print("Action is 0")
+                   # print("Action is 0")
                 else:
                     action_probabilities = policy(env.state)
                    # print("Action prob is ", action_probabilities)
@@ -206,8 +206,8 @@ class q_learning_funcs():
             env.state = self.env.reset(event_simu)
             policy = self.create_epsilon_greedy_policy(Q)
 
-            # Create an epsilon greedy policy function
-            # appropriately for environment action space
+            # differentiate seed for each episode
+            seeds = generate_random_seeds(self.episode_seeds[i_episode], self.size_time_steps)
 
             for t in range(self.size_time_steps):  # itertools.count():
                 # Q = defaultdict(lambda: np.zeros(self.env.action_space.n))
@@ -215,7 +215,7 @@ class q_learning_funcs():
                 # job release/job arrival (simulation strategy to be used?)
                 # /machine idle
                 # env.state[2] is machine list
-                event_simu.set_seed(self.seeds[t])
+                event_simu.set_seed(seeds[t])
                 events = event_simu.event_simulation(t, env.machine, granularity)
                 # update pt
                 # released_new_jobs = events[1]

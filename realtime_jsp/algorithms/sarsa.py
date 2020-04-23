@@ -24,7 +24,7 @@ class SARSA():
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
-        self.seeds = generate_random_seeds(self.initial_seed, self.size_time_steps)
+        self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
 
     # Make the $\epsilon$-greedy policy
     def create_epsilon_greedy_policy(self, Q):
@@ -99,8 +99,6 @@ class SARSA():
                 #print("Q is ", Q)
                 policy = self.create_epsilon_greedy_policy(Q)
 
-            # Create an epsilon greedy policy function
-            # appropriately for environment action space
 
             for t in range(self.size_time_steps):  # itertools.count():
                 # Q = defaultdict(lambda: np.zeros(self.env.action_space.n))
@@ -218,8 +216,8 @@ class SARSA():
             env.state = self.env.reset(event_simu)
             policy = self.create_epsilon_greedy_policy(Q)
 
-            # Create an epsilon greedy policy function
-            # appropriately for environment action space
+            # differentiate seed for each episode
+            seeds = generate_random_seeds(self.episode_seeds[i_episode], self.size_time_steps)
 
             for t in range(self.size_time_steps):  # itertools.count():
                 # Q = defaultdict(lambda: np.zeros(self.env.action_space.n))
@@ -227,7 +225,7 @@ class SARSA():
                 # job release/job arrival (simulation strategy to be used?)
                 # /machine idle
                 # env.state[2] is machine list
-                event_simu.set_seed(self.seeds[t])
+                event_simu.set_seed(seeds[t])
                 events = event_simu.event_simulation(t, env.machine, granularity)
                 # update pt
                 # released_new_jobs = events[1]
