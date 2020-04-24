@@ -63,7 +63,8 @@ class EventSimulator2:
         for i in range(number):
             due_t = int(ints[i]) +pts[i]+ self.current_time+1  # Can be modified
             job = JobDue(due_t, pts[i], -1)
-            print("Released job ", due_t, " ", pts[i], " at time ", self.current_time)
+            job.setID()
+            #print("Released job ", job.to_string(), " at time ", self.current_time)
             jobs.append(job)
         return jobs
 
@@ -78,7 +79,7 @@ class EventSimulator2:
         if not self.random:
             np.random.seed(self.seed)
         num = int(np.random.exponential(self.interarrival_mean_time, 1))
-        print("interrival is ", num)
+        #print("interrival is ", num)
         return num
 
     # TO DO: add arrival like release
@@ -100,13 +101,16 @@ class EventSimulator2:
         processed_pt = 0
         tardiness = 0
         # print("In event_simu, machine num is ", len(machines))
-        if machine.idle != True:
+        if not machine.idle:
             job = machine.assigned_job
             remained_pt = job.pt - (self.current_time - job.start_processing_t)
             if remained_pt <= 0:
                 processed_pt += granularity
                 tardiness = self.current_time - job.due_t + remained_pt
                 machine.reset()
+            else:
+                job.pt = remained_pt
+                machine.assigned_job = job
 
            # print("Debug simulator， remained pt is ", remained_pt, " machine is idle? ", machine.idle)
         updated_machine = machine

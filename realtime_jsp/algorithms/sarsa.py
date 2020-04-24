@@ -122,7 +122,7 @@ class SARSA():
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
-                if env.state == 0 or env.machine.idle is False:
+                if env.state == 0: # or env.machine.idle is False:
                     pass
                     # action = 0
                    # print("Action is 0")
@@ -242,7 +242,7 @@ class SARSA():
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
-                if env.state == 0 or env.machine.idle is False:
+                if env.state == 0: #or env.machine.idle is False:
                     pass
                     # action = 0
                     #print("Action is 0")
@@ -285,8 +285,8 @@ class SARSA():
                         break
 
                     # TD Update
-                   # print("Test Q ", Q)
-                   # print(" next state ", next_state)
+                    # print("Test Q ", Q)
+                    # print(" next state ", next_state)
                     #print(" Q[next_state] is ", Q[next_state], " env_state ", env.state)
                     if next_state >= len(Q[next_state]):
                         diff = next_state - len(Q[next_state]) + 1

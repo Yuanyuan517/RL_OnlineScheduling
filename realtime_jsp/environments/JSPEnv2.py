@@ -122,18 +122,42 @@ class JSPEnv2(gym.Env):
         '''
         # if self.machine.idle:
         # action maps which job to select
-        print("In JSPEnv2, Machine is idle. Debug action ", action, " waiting size ", len(self.waiting_jobs))
+        print("Waiting size ", len(self.waiting_jobs))
+        print("In JSPEnv2, Machine is idle. Debug action ", action, " job ", self.waiting_jobs[action].to_string(), " waiting size ", len(self.waiting_jobs))
         # print("In JSPEnv2, Job is ", self.waiting_jobs[action].to_string())
         if action != -1:
-            self.machine.process_job(self.waiting_jobs[action], t)
-            del self.waiting_jobs[action]
+            job_to_process = self.waiting_jobs[action]
+            # preemption
+            if self.machine.idle is False:
+                assigned_job = self.machine.assigned_job
+                # print("Check before reassigning job ", job_to_process)
+                self.machine.process_job(job_to_process, t)
+                assigned_job.pt -= t - assigned_job.start_processing_t
+                self.waiting_jobs[0] = assigned_job
+                del self.waiting_jobs[action]
+                #print("Removed job ", job_to_process.to_string(), " size ", len(self.waiting_jobs))
+            else:
+                self.machine.process_job(job_to_process, t)
+                del self.waiting_jobs[action]
+                #print("Removed job ", job_to_process.to_string(), " size ", len(self.waiting_jobs))
 
         # sort jobs according to the due date, 1st one is the one with smallest due date (urgent)
         self.waiting_jobs.sort(key=self.takeDueTime)
+
         # if EDD
         if action == -1:
-            self.machine.process_job(self.waiting_jobs[0], t)
-            del self.waiting_jobs[0]
+            job_to_process = self.waiting_jobs[0]
+            # preemption only when due date is smaller
+            if self.machine.idle is False:
+                assigned_job = self.machine.assigned_job
+                if assigned_job.due_t > job_to_process.due_t:
+                    self.machine.process_job(job_to_process, t)
+                    del self.waiting_jobs[0]
+                    assigned_job.pt -= t - assigned_job.start_processing_t
+                    self.waiting_jobs[0] = assigned_job
+            else:
+                self.machine.process_job(job_to_process, t)
+                del self.waiting_jobs[0]
         new_state = len(self.waiting_jobs)
 
         # April/21/2020, only calculate the tardiness of finished job + the just assigned one
@@ -156,12 +180,16 @@ class JSPEnv2(gym.Env):
         reward = -1*reward # cz this is tardiness
         print("Getting reward ", reward, " from action ", action)
         '''
+
         done = bool(new_state == 0)
         return new_state, tardi, done, {}
 
     def takeDueTime(self, job):
-        return job.due_t+job.pt
+        return job.due_t#+job.pt
 
+    def debug_waiting_jobs(self):
+        for j in self.waiting_jobs:
+            print(j.to_string())
 
     def reset(self, simulator):
         # initialize machines and its job being processed

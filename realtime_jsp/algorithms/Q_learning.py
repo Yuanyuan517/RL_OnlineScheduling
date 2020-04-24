@@ -114,7 +114,7 @@ class q_learning_funcs():
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
-                if env.state == 0 or env.machine.idle is False:
+                if env.state == 0: #or env.machine.idle is False:
                     pass
                     # action = 0
                    # print("Action is 0")
@@ -232,7 +232,7 @@ class q_learning_funcs():
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
-                if env.state == 0 or env.machine.idle is False:
+                if env.state == 0: #or env.machine.idle is False:
                     pass
                     # action = 0
                     #print("Action is 0")

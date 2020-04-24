@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import itertools
 import matplotlib.style
 from collections import defaultdict
@@ -13,7 +14,7 @@ Based on: https://www.geeksforgeeks.org/q-learning-in-python/
 '''
 
 
-class EDD():
+class Random():
 
     def __init__(self, env, settings):
         self.env = env
@@ -87,12 +88,14 @@ class EDD():
                 else:
                     # choose action according to
                     # the earliest due date
-                    action = -1 # the jobs are sorted by due date in step so use -1 to indicate this is EDD
+                    action = random.randint(1, env.state)-1 # the jobs are sorted by due date in step so use -1 to indicate this is EDD
 
-                    #print("Choose action ", action, " state ", env.state)
+                    print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
+                    self.env.debug_waiting_jobs()
                     next_state, tardi, done, _ = self.env.step(action, events, t)
+
 
                     # Update statistics
                     # EDIT: April 20, 2020. use tardiness instead of reward
@@ -129,7 +132,7 @@ if __name__ == '__main__':
     _conf.read('/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp'
                      '/etc/app.ini')
     #  Test
-    edd_model = EDD(env, _conf)
-    stats = edd_model.run(plotting)
+    random_model = Random(env, _conf)
+    stats = random_model.run(plotting)
     print("stats ", stats)
     plotting.plot_episode_stats(stats)
