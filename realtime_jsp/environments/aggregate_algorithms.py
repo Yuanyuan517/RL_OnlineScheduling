@@ -22,10 +22,10 @@ if __name__ == '__main__':
     algos2 = [Random, EDD]
     criterion = [1, 2, 3]
     num_episodes_trains = [1000, 10000, 100000]
-    obj = 2
+    obj = 1
 
     # plotting.plot_episode_stats(stats)
-    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/result.txt'
+    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/result_time10000.txt'
     with open(filename, 'a') as f:
         # algo of random and EDD
         for algo2 in algos2:

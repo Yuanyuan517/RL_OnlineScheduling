@@ -342,7 +342,7 @@ if __name__ == '__main__':
     sarsa_train.criteria = 1
 
     # plotting.plot_episode_stats(stats)
-    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/result.txt'
+    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/result_time10000.txt'
     with open(filename, 'a') as f:
         for num in sarsa_train.num_episodes_trains:
 
