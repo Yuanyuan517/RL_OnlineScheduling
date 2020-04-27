@@ -101,6 +101,8 @@ class JSPEnv2(gym.Env):
         # April 20, 2020, record total tardiness in each episode
         self.TT = 0
 
+        self.criteria = 1
+
     '''
     Section 3.1 Decisions are made while 1) a job arrives at an idle machine; 2) a machine with a non-empty queue
     becomes idle. We call these points of time decision epochs. Contrarily, when a job is released or arrives at
@@ -122,7 +124,8 @@ class JSPEnv2(gym.Env):
         '''
         # if self.machine.idle:
         # action maps which job to select
-        print("Waiting size ", len(self.waiting_jobs))
+        # print("Waiting size ", len(self.waiting_jobs))
+
         print("In JSPEnv2, Machine is idle. Debug action ", action, " job ", self.waiting_jobs[action].to_string(), " waiting size ", len(self.waiting_jobs))
         # print("In JSPEnv2, Job is ", self.waiting_jobs[action].to_string())
         if action != -1:
@@ -141,18 +144,18 @@ class JSPEnv2(gym.Env):
                 del self.waiting_jobs[action]
                 #print("Removed job ", job_to_process.to_string(), " size ", len(self.waiting_jobs))
 
-        # sort jobs according to the due date, 1st one is the one with smallest due date (urgent)
-        self.waiting_jobs.sort(key=self.takeDueTime)
-
         # if EDD
         if action == -1:
+            # sort jobs only according to the due date, 1st one is the one with smallest due date (urgent)
+            print("waiting size ", len(self.waiting_jobs))
+            self.waiting_jobs.sort(key=self.takeDueTime)
             job_to_process = self.waiting_jobs[0]
             # preemption only when due date is smaller
             if self.machine.idle is False:
                 assigned_job = self.machine.assigned_job
                 if assigned_job.due_t > job_to_process.due_t:
                     self.machine.process_job(job_to_process, t)
-                    del self.waiting_jobs[0]
+                    # del self.waiting_jobs[0]
                     assigned_job.pt -= t - assigned_job.start_processing_t
                     self.waiting_jobs[0] = assigned_job
             else:
@@ -185,7 +188,12 @@ class JSPEnv2(gym.Env):
         return new_state, tardi, done, {}
 
     def takeDueTime(self, job):
-        return job.due_t#+job.pt
+        print("job type ", self.criteria)
+        if self.criteria == 1:
+            return job.due_t
+        if self.criteria == 2:
+            return job.due_t + job.pt
+
 
     def debug_waiting_jobs(self):
         for j in self.waiting_jobs:

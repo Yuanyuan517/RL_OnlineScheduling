@@ -23,6 +23,10 @@ class Random():
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
+        self.action_set = set()
+        self.state_set = set()
+        self.obj = 1  # 1 is min max tardiness, 2 is min total tardiness
+        self.name = "Random"
 
     def run(self, plotting):
         """
@@ -49,7 +53,8 @@ class Random():
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
 
             # Reset the environment and pick the first action
-            env.state = self.env.reset(event_simu)
+            self.env.state = self.env.reset(event_simu)
+            self.state_set.add(self.env.state)
             # Create an epsilon greedy policy function
             # appropriately for environment action space
 
@@ -64,33 +69,34 @@ class Random():
                 # env.state[2] is machine list
                 # set fixed seed for testing
                 event_simu.set_seed(seeds[t])
-                events = event_simu.event_simulation(t, env.machine, granularity)
+                events = event_simu.event_simulation(t, self.env.machine, granularity)
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                env.machine = events[2]
+                self.env.machine = events[2]
                 tardiness = events[4]
                #print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
-                        env.waiting_jobs.append(job)
-                env.state = len(env.waiting_jobs)
+                        self.env.waiting_jobs.append(job)
+                self.env.state = len(self.env.waiting_jobs)
+                self.state_set.add(self.env.state)
                 #print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
                 # env.remain_raw_pt -= events[3]
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
                 # EDIT-23/04/2020: enable preemption
-                if env.state == 0: #or env.machine.idle is False:
+                if self.env.state == 0: #or env.machine.idle is False:
                     pass
                     # action = 0
                     #print("Action is 0")
                 else:
                     # choose action according to
                     # the earliest due date
-                    action = random.randint(1, env.state)-1 # the jobs are sorted by due date in step so use -1 to indicate this is EDD
-
-                    print("Choose action ", action, " state ", env.state)
+                    action = random.randint(1, self.env.state)-1 # the jobs are sorted by due date in step so use -1 to indicate this is EDD
+                    self.action_set.add(action)
+                    # print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
                     self.env.debug_waiting_jobs()
@@ -110,15 +116,20 @@ class Random():
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
-                    stats.episode_rewards[i_episode] = max_tardinees
+                    if self.obj == 1:
+                        stats.episode_rewards[i_episode] = max_tardinees
+                    else:
+                        stats.episode_rewards[i_episode] = total_tardiness
                     #stats.episode_rewards[i_episode] = reward
 
                     # done is True if episode terminated
                     if done:
                         print("Episode finished")
+                        #print("state size ", len(random_model.state_set), random_model.state_set)
+                        #print("action size ", len(random_model.action_set), random_model.action_set)
                         break
 
-                    env.state = next_state
+                    self.env.state = next_state
                    # print("State updated to ", env.state)
 
         return stats
@@ -136,3 +147,5 @@ if __name__ == '__main__':
     stats = random_model.run(plotting)
     print("stats ", stats)
     plotting.plot_episode_stats(stats)
+    print("state size ", len(random_model.state_set), random_model.state_set)
+    print("action size ", len(random_model.action_set), random_model.action_set)

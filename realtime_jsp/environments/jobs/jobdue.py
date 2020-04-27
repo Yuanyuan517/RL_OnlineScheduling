@@ -4,6 +4,7 @@ from .base import Base
 class JobDue(Base):
 
     id_counter = 0 # it seems static, so i should create an internal id
+
     def __init__(self, due_t, pt, start_processing_t):
         Base.__init__(self, pt, start_processing_t)
         self.due_t = due_t

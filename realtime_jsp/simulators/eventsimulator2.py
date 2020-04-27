@@ -106,7 +106,7 @@ class EventSimulator2:
             remained_pt = job.pt - (self.current_time - job.start_processing_t)
             if remained_pt <= 0:
                 processed_pt += granularity
-                tardiness = self.current_time - job.due_t + remained_pt
+                tardiness = max(0, self.current_time - job.due_t + remained_pt)
                 machine.reset()
             else:
                 job.pt = remained_pt

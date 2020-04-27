@@ -20,11 +20,15 @@ class SARSA():
         self.epsilon = float(settings.get('Q_learning', 'epsilon'))
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
-        self.num_episodes_train = int(settings.get('algorithms', 'num_episodes_train'))
+        # self.num_episodes_trains = settings.get('algorithms', 'num_episodes_train').split()
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
+        self.num_episodes_train = 0
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
+        self.criteria = 1 # 1 is only DD, 2 DD+pt, 3 random
+        self.obj = 1 # 1 is min max tardiness, 2 is min total tardiness
+        self.name = "sarsa"
 
     # Make the $\epsilon$-greedy policy
     def create_epsilon_greedy_policy(self, Q):
@@ -42,6 +46,7 @@ class SARSA():
             num_actions = state
             action_probabilities = np.ones(num_actions, dtype=float) * self.epsilon / num_actions
             # num of Q[state] can be greater than num_actions/state cz in each step, the situation can vary
+            #print("Q ", Q)
             Q_values = Q[state][:num_actions]
             best_action = np.argmax(Q_values)
             #print("Action_prob before is ", action_probabilities)
@@ -65,8 +70,14 @@ class SARSA():
             action = np.argmax(Q_values)
         return action
 
+    def takeDueTime(self, job):
+        if self.criteria == 1:
+            return job.due_t
+        if self.criteria == 2:
+            return job.due_t  +job.pt
+
         # Build sarsa  Model
-    def sarsa_model(self, plotting):
+    def learn(self, plotting):
         """
         Q-Learning algorithm: Off-policy TD control.
         Finds the optimal greedy policy while improving
@@ -93,9 +104,9 @@ class SARSA():
             total_tardiness = 0  # tardiness of all finished jobs
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
             # Reset the environment and pick the first action
-            env.state = self.env.reset(event_simu)
+            self.env.state = self.env.reset(event_simu)
             if Q is None:
-                Q = defaultdict(lambda: np.zeros(env.state))
+                Q = defaultdict(lambda: np.zeros(self.env.state))
                 #print("Q is ", Q)
                 policy = self.create_epsilon_greedy_policy(Q)
 
@@ -106,28 +117,32 @@ class SARSA():
                 # job release/job arrival (simulation strategy to be used?)
                 # /machine idle
                 # env.state[2] is machine list
-                events = event_simu.event_simulation(t, env.machine, granularity)
+                events = event_simu.event_simulation(t, self.env.machine, granularity)
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                env.machine = events[2]
+                self.env.machine = events[2]
                 tardiness = events[4]
                 #print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
-                        env.waiting_jobs.append(job)
-                env.state = len(env.waiting_jobs)
-               # print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
+                        self.env.waiting_jobs.append(job)
+                self.env.state = len(self.env.waiting_jobs)
+                # sort jobs according to the due date+pt?, 1st one is the one with smallest due date (urgent)
+                if self.criteria != 3:
+                    self.env.waiting_jobs.sort(key=self.takeDueTime)
+
+                # print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
                 # env.remain_raw_pt -= events[3]
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
-                if env.state == 0: # or env.machine.idle is False:
+                if self.env.state == 0: # or env.machine.idle is False:
                     pass
                     # action = 0
                    # print("Action is 0")
                 else:
-                    action_probabilities = policy(env.state)
+                    action_probabilities = policy(self.env.state)
                    # print("Action prob is ", action_probabilities)
 
                     # choose action according to
@@ -137,7 +152,7 @@ class SARSA():
                         p=action_probabilities)
 
                     # action may be over size
-                    action = np.mod(action, env.state)
+                    action = np.mod(action, self.env.state)
                    # print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
@@ -156,7 +171,11 @@ class SARSA():
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
-                    stats.episode_rewards[i_episode] = max_tardinees
+                    # April 26: enable the option of min total tardiness
+                    if self.obj == 1:
+                        stats.episode_rewards[i_episode] = max_tardinees
+                    else:
+                        stats.episode_rewards[i_episode] = total_tardiness
                     # print("Tardi is ", tardi, " max tardi is ", max_tardinees)
 
                     # done is True if episode terminated
@@ -175,18 +194,16 @@ class SARSA():
 
                     best_next_action = self.choose_action(Q, next_state)# np.argmax(Q[next_state])
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
-                    td_delta = td_target - Q[env.state][action]
-                    Q[env.state][action] += self.alpha * td_delta
+                    td_delta = td_target - Q[self.env.state][action]
+                    Q[self.env.state][action] += self.alpha * td_delta
                    # print("Now Q is ", Q)
 
-
-
-                    env.state = next_state
+                    self.env.state = next_state
                     #print("State updated to ", env.state)
 
         return Q, stats
 
-    def sarsa_fixed_seed(self, Q, plotting):
+    def fixed_seed(self, Q, plotting):
         """
         Q-Learning algorithm: Off-policy TD control.
         Finds the optimal greedy policy while improving
@@ -213,7 +230,7 @@ class SARSA():
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
 
             # Reset the environment and pick the first action
-            env.state = self.env.reset(event_simu)
+            self.env.state = self.env.reset(event_simu)
             policy = self.create_epsilon_greedy_policy(Q)
 
             # differentiate seed for each episode
@@ -226,28 +243,32 @@ class SARSA():
                 # /machine idle
                 # env.state[2] is machine list
                 event_simu.set_seed(seeds[t])
-                events = event_simu.event_simulation(t, env.machine, granularity)
+                events = event_simu.event_simulation(t, self.env.machine, granularity)
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                env.machine = events[2]
+                self.env.machine = events[2]
                 tardiness = events[4]
                 #print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
-                        env.waiting_jobs.append(job)
-                env.state = len(env.waiting_jobs)
+                        self.env.waiting_jobs.append(job)
+                        # sort jobs according to the due date+pt?, 1st one is the one with smallest due date (urgent)
+                if self.criteria != 3:
+                    self.env.waiting_jobs.sort(key=self.takeDueTime)
+
+                self.env.state = len(self.env.waiting_jobs)
                 #print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
                 # env.remain_raw_pt -= events[3]
 
                 # get probabilities of all actions from current state
                 # if no released and waited job, then dummy action
-                if env.state == 0: #or env.machine.idle is False:
+                if self.env.state == 0: #or env.machine.idle is False:
                     pass
                     # action = 0
                     #print("Action is 0")
                 else:
-                    action_probabilities = policy(env.state)
+                    action_probabilities = policy(self.env.state)
                     #print("Action prob is ", action_probabilities)
 
                     # choose action according to
@@ -257,7 +278,7 @@ class SARSA():
                         p=action_probabilities)
 
                     # action may be over size
-                    action = np.mod(action, env.state)
+                    action = np.mod(action, self.env.state)
                     #print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
@@ -276,7 +297,11 @@ class SARSA():
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
-                    stats.episode_rewards[i_episode] = max_tardinees
+                    # April 26: enable the option of min total tardiness
+                    if self.obj == 1:
+                        stats.episode_rewards[i_episode] = max_tardinees
+                    else:
+                        stats.episode_rewards[i_episode] = total_tardiness
                     #print("Tardi is ", tardi, " max tardi is ", max_tardinees)
 
                     # done is True if episode terminated
@@ -295,15 +320,13 @@ class SARSA():
 
                     best_next_action = self.choose_action(Q, next_state)# np.argmax(Q[next_state])
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
-                    td_delta = td_target - Q[env.state][action]
-                    Q[env.state][action] += self.alpha * td_delta
+                    td_delta = td_target - Q[self.env.state][action]
+                    Q[self.env.state][action] += self.alpha * td_delta
                     #print("Now Q is ", Q)
 
-
-
-                    env.state = next_state
+                    self.env.state = next_state
                     #print("State updated to ", env.state)
-
+        print("Return")
         return Q, stats
 
 if __name__ == '__main__':
@@ -316,14 +339,33 @@ if __name__ == '__main__':
     print(res)
     #  Train the model
     sarsa_train = SARSA(env, _conf)
-    Q, stats = sarsa_train.sarsa_model(plotting)
-    print("stats ", stats)
-    plotting.plot_episode_stats(stats)
+    sarsa_train.criteria = 1
 
-    # event simulator is fixed
-    # test the model with calculated Q
-    Q2, stats2 = sarsa_train.sarsa_fixed_seed(Q, plotting)
-    print("New Stats", stats2)
-    plotting.plot_episode_stats(stats2)
+    # plotting.plot_episode_stats(stats)
+    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/result.txt'
+    with open(filename, 'a') as f:
+        for num in sarsa_train.num_episodes_trains:
 
+            sarsa_train.num_episodes_train = int(num)
+            Q, stats = sarsa_train.learn(plotting)
+            # event simulator is fixed
+            # test the model with calculated Q
+            Q2, stats2 = sarsa_train.fixed_seed(Q, plotting)
+            cri = ""
+            if sarsa_train.criteria == 1:
+                cri = "DD_pt"
+            elif sarsa_train.criteria == 2:
+                cri = "DD"
+            else:
+                cri = "random"
+            s = "sarsa "+num+" "+cri+" "
+            f.write(s)
+            f.write("\n")
+            b = np.matrix(stats2.episode_rewards)
+            np.savetxt(f, b, fmt="%d")
+            f.write("\n")
+            #f.write(s.join(map(str, stats2.episode_rewards)))
+            print("New Stats", stats2)
+            # plotting.plot_episode_stats(stats2)
+        print("Finished sarsa")
 
