@@ -7,7 +7,7 @@ import matplotlib.style
 
 import gym
 
-from tensorflow.keras import Model, Sequential
+from tensorflow.keras import models, Model, Sequential
 from tensorflow.keras.layers import Dense, Embedding, Reshape
 from tensorflow.keras.optimizers import Adam
 from realtime_jsp.environments.JSPEnv2 import JSPEnv2
@@ -186,6 +186,7 @@ class dqn:
         self.q_network.save(self.save_path)
         print('Successfully saved: ' + self.save_path)
 
+    # https://github.com/ShanHaoYu/Deep-Q-Network-Breakout/blob/master/test.py
     def test(self, plotting):
         # Keeps track of useful statistics
         stats = plotting.EpisodeStats(
@@ -304,8 +305,11 @@ if __name__ == '__main__':
     #timesteps_per_episode = 1000
 
     agent = dqn(env, optimizer, _conf)
+    # load saved model
+    agent.q_network = models.load_model('dqn.h5')
     agent.q_network.summary()
-    agent.training_steps()
+    # train
+    #agent.training_steps()
     # test
     matplotlib.style.use('ggplot')
     plotting = Plotting()
