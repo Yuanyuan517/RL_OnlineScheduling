@@ -66,7 +66,7 @@ class q_learning_funcs():
         if self.criteria == 1:
             return job.due_t
         if self.criteria == 2:
-            return job.due_t  +job.pt
+            return job.due_t + job.pt
 
     # Build Q-Learning Model
     def learn(self, plotting):
@@ -159,7 +159,7 @@ class q_learning_funcs():
                     # April/21/2020: the reward takes into account total tardiness
                     # - tardiness of all finished jobs
                     # - prediction of the tardiness of the just selected job
-                    reward = -1*(stats.episode_rewards[i_episode] + tardi)
+                    reward = -1*(total_tardiness + tardi)   # ???????????
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
@@ -203,7 +203,6 @@ class q_learning_funcs():
         following an epsilon-greedy policy"""
 
         # Keeps track of useful statistics
-
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_test),
             episode_rewards=np.zeros(self.num_episodes_test))
@@ -284,7 +283,7 @@ class q_learning_funcs():
                     # April/21/2020: the reward takes into account total tardiness
                     # - tardiness of all finished jobs
                     # - prediction of the tardiness of the just selected job
-                    reward = -1*(stats.episode_rewards[i_episode] + tardi)
+                    reward = -1*(total_tardiness + tardi)
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
