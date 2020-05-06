@@ -40,9 +40,9 @@ class dqn:
         self.target_network = self._build_compile_model()
         self.alighn_target_model()
 
-        self.num_episodes_train = 10#int(settings.get('algorithms', 'num_episodes_train'))
-        self.num_episodes_test = 2#int(settings.get('algorithms', 'num_episodes_test'))
-        self.size_time_steps = 10#int(settings.get('algorithms', 'size_time_steps'))
+        self.num_episodes_train = int(settings.get('algorithms', 'num_episodes_train'))
+        self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
+        self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
 
@@ -313,4 +313,6 @@ if __name__ == '__main__':
     # test
     matplotlib.style.use('ggplot')
     plotting = Plotting()
-    agent.test(plotting)
+    stats2 = agent.test(plotting)
+    plotting.plot_episode_stats(stats2)
+    print("New Stats", stats2)

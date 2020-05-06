@@ -1,3 +1,4 @@
+# coding=utf-8
 import numpy as np
 from realtime_jsp.environments.jobs.jobdue import JobDue
 
@@ -111,8 +112,7 @@ class EventSimulator2:
             else:
                 job.pt = remained_pt
                 machine.assigned_job = job
-
-           # print("Debug simulator， remained pt is ", remained_pt, " machine is idle? ", machine.idle)
+            # print("Debug simulator， remained pt is ", remained_pt, " machine is idle? ", machine.idle)
         updated_machine = machine
         return updated_machine, processed_pt, tardiness
 
