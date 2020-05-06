@@ -87,7 +87,8 @@ class SARSATrain():
 
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_train),
-            episode_rewards=np.zeros(self.num_episodes_train))
+            episode_rewards=np.zeros(self.num_episodes_train),
+            episode_obj=np.zeros(self.num_episodes_train))
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)
@@ -157,8 +158,8 @@ class SARSATrain():
                         len(action_probabilities)),
                         p=action_probabilities)
 
-                    # action may be over size
-                    action = np.mod(action, self.env.state)
+                    # action may be over size (May 6th: shouldnt occur with current setting)
+                   # action = np.mod(action, self.env.state)
                     #print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
@@ -179,6 +180,7 @@ class SARSATrain():
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     stats.episode_rewards[i_episode] += reward
+                    stats.episode_obj[i_episode] = max_tardinees
                     '''
                     if self.obj == 1:
                         stats.episode_rewards[i_episode] = max_tardinees

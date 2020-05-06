@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 class Plotting:
     def __init__(self):
-        self.EpisodeStats = namedtuple("Stats",["episode_lengths", "episode_rewards"])
+        self.EpisodeStats = namedtuple("Stats",["episode_lengths", "episode_rewards", "episode_obj"])
 
     def plot_cost_to_go_mountain_car(env, estimator, num_tiles=20):
         x = np.linspace(env.observation_space.low[0], env.observation_space.high[0], num=num_tiles)
@@ -98,4 +98,17 @@ class Plotting:
         else:
             plt.show()
 
-        return fig1, fig2, fig3
+        # Plot time steps and episode number
+        fig4 = plt.figure(figsize=(10,5))
+        obj_smoothed = pd.Series(stats.episode_obj).rolling(smoothing_window,
+                                                                    min_periods=smoothing_window).mean()
+        plt.plot(obj_smoothed)
+        plt.xlabel("Episode")
+        plt.ylabel("Episode Maximum Tardiness")
+        plt.title("Episode Maximum Tardiness over Time (Smoothed over window size {})".format(smoothing_window))
+        if noshow:
+            plt.close(fig4)
+        else:
+            plt.show()
+
+        return fig1, fig2, fig3, fig4
