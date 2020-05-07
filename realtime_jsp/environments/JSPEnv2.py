@@ -125,8 +125,7 @@ class JSPEnv2(gym.Env):
         # if self.machine.idle:
         # action maps which job to select
         # print("Waiting size ", len(self.waiting_jobs))
-
-        print("In JSPEnv2, Machine is idle. Debug action ", action, " job ", self.waiting_jobs[action].to_string(), " waiting size ", len(self.waiting_jobs))
+       # print("In JSPEnv2, Machine is idle. Debug action ", action, " job ", self.waiting_jobs[action].to_string(), " waiting size ", len(self.waiting_jobs))
         # print("In JSPEnv2, Job is ", self.waiting_jobs[action].to_string())
         if action != -1:
             job_to_process = self.waiting_jobs[action]

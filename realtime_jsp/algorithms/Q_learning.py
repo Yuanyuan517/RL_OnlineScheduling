@@ -22,7 +22,7 @@ class q_learning_funcs():
         self.epsilon = float(settings.get('Q_learning', 'epsilon'))
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
-#        self.num_episodes_trains = settings.get('algorithms', 'num_episodes_train').split()
+#        self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
         self.num_episodes_train = 0#int(settings.get('algorithms', 'num_episodes_train'))
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
@@ -79,7 +79,9 @@ class q_learning_funcs():
 
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_train),
-            episode_rewards=np.zeros(self.num_episodes_train))
+            episode_rewards=np.zeros(self.num_episodes_train),
+            episode_obj=np.zeros(self.num_episodes_train)
+        )
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(True)
@@ -205,7 +207,8 @@ class q_learning_funcs():
         # Keeps track of useful statistics
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_test),
-            episode_rewards=np.zeros(self.num_episodes_test))
+            episode_rewards=np.zeros(self.num_episodes_test),
+            episode_obj=np.zeros(self.num_episodes_train))
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)

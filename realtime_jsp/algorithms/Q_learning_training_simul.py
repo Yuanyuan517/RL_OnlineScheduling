@@ -12,7 +12,8 @@ from realtime_jsp.simulators.utility import generate_random_seeds
 Based on: https://www.geeksforgeeks.org/sarsa-reinforcement-learning/
 '''
 
-class SARSATrain():
+
+class QLearningTrain():
 
     def __init__(self, env, settings):
         self.env = env
@@ -28,7 +29,7 @@ class SARSATrain():
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
         self.criteria = 1 # 1 is only DD, 2 DD+pt, 3 random
         self.obj = 1 # 1 is min max tardiness, 2 is min total tardiness
-        self.name = "sarsa"
+        self.name = "Q"
 
     # Make the $\epsilon$-greedy policy
     def create_epsilon_greedy_policy(self, Q):
@@ -64,8 +65,7 @@ class SARSATrain():
         action = 0
         num_actions = state
         if np.random.uniform(0, 1) < self.epsilon:
-            actions = np.random.random_integers(0, num_actions, 1)
-            action = actions[0]
+            action = np.random.random_integers(0, num_actions, 1)
         else:
             Q_values = Q[state][:num_actions]
             action = np.argmax(Q_values)
@@ -150,16 +150,14 @@ class SARSATrain():
                     # action = 0
                     #print("Action is 0")
                 else:
-                    # for other times, the action will be used from the previous selection (TO Clean)
-                    if t==0:
-                        action_probabilities = policy(self.env.state)
-                        #print("Action prob is ", action_probabilities)
+                    action_probabilities = policy(self.env.state)
+                    #print("Action prob is ", action_probabilities)
 
-                        # choose action according to
-                        # the probability distribution
-                        action = np.random.choice(np.arange(
-                            len(action_probabilities)),
-                            p=action_probabilities)
+                    # choose action according to
+                    # the probability distribution
+                    action = np.random.choice(np.arange(
+                        len(action_probabilities)),
+                        p=action_probabilities)
 
                     # action may be over size (May 6th: shouldnt occur with current setting)
                    # action = np.mod(action, self.env.state)
@@ -183,6 +181,7 @@ class SARSATrain():
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     stats.episode_rewards[i_episode] += reward
+                    print("Reward ", reward, " ", stats.episode_rewards[i_episode])
                     stats.episode_obj[i_episode] = max_tardinees
                     '''
                     if self.obj == 1:
@@ -206,14 +205,13 @@ class SARSATrain():
                         for i in range(diff):
                             Q[next_state] = np.append(Q[next_state], 0)
 
-                    best_next_action = self.choose_action(Q, next_state)# np.argmax(Q[next_state])
+                    best_next_action = np.argmax(Q[next_state])
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
                     td_delta = td_target - Q[self.env.state][action]
                     Q[self.env.state][action] += self.alpha * td_delta
                     #print("Now Q is ", Q)
 
                     self.env.state = next_state
-                    action = best_next_action
                     #print("State updated to ", env.state)
         print("Return")
         return Q, stats
@@ -227,17 +225,16 @@ if __name__ == '__main__':
                      '/etc/app.ini')
     print(res)
     #  Train the model
-    sarsa_train = SARSATrain(env, _conf)
-    sarsa_train.criteria = 1
+    Q_train = QLearningTrain(env, _conf)
+    Q_train.criteria = 1
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/result_time10000.txt'
     with open(filename, 'a') as f:
-        for num in sarsa_train.num_episodes_trains:
-
-            sarsa_train.num_episodes_train = int(num)
-            Q, stats = sarsa_train.fixed_seed_training(plotting)
-            print("Train episodes ", sarsa_train.num_episodes_train)
+        for num in Q_train.num_episodes_trains:
+            Q_train.num_episodes_train = int(num)
+            Q, stats = Q_train.fixed_seed_training(plotting)
+            print("Train episodes ", Q_train.num_episodes_train)
             plotting.plot_episode_stats(stats)
             '''
             # event simulator is fixed

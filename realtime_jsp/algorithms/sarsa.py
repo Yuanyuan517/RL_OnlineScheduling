@@ -20,7 +20,7 @@ class SARSA():
         self.epsilon = float(settings.get('Q_learning', 'epsilon'))
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
-        self.num_episodes_trains = settings.get('algorithms', 'num_episodes_train').split()
+        self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
@@ -64,7 +64,8 @@ class SARSA():
         action = 0
         num_actions = state
         if np.random.uniform(0, 1) < self.epsilon:
-            action = np.random.random_integers(0, num_actions, 1)
+            actions = np.random.random_integers(0, num_actions, 1)
+            action = actions[0]
         else:
             Q_values = Q[state][:num_actions]
             action = np.argmax(Q_values)
@@ -87,7 +88,8 @@ class SARSA():
 
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_train),
-            episode_rewards=np.zeros(self.num_episodes_train))
+            episode_rewards=np.zeros(self.num_episodes_train),
+            episode_obj=np.zeros(self.num_episodes_train))
 
         event_simu = EventSimulator2(self.settings)
         total_tardiness = 0  # tardiness of all finished jobs
@@ -142,14 +144,15 @@ class SARSA():
                     # action = 0
                    # print("Action is 0")
                 else:
-                    action_probabilities = policy(self.env.state)
-                   # print("Action prob is ", action_probabilities)
+                    if t==0:
+                        action_probabilities = policy(self.env.state)
+                       # print("Action prob is ", action_probabilities)
 
-                    # choose action according to
-                    # the probability distribution
-                    action = np.random.choice(np.arange(
-                        len(action_probabilities)),
-                        p=action_probabilities)
+                        # choose action according to
+                        # the probability distribution
+                        action = np.random.choice(np.arange(
+                            len(action_probabilities)),
+                            p=action_probabilities)
 
                     # action may be over size
                     action = np.mod(action, self.env.state)
@@ -199,6 +202,7 @@ class SARSA():
                    # print("Now Q is ", Q)
 
                     self.env.state = next_state
+                    action = best_next_action
                     #print("State updated to ", env.state)
 
         return Q, stats
@@ -213,7 +217,8 @@ class SARSA():
 
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_test),
-            episode_rewards=np.zeros(self.num_episodes_test))
+            episode_rewards=np.zeros(self.num_episodes_test),
+            episode_obj=np.zeros(self.num_episodes_train))
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)
@@ -268,14 +273,15 @@ class SARSA():
                     # action = 0
                     #print("Action is 0")
                 else:
-                    action_probabilities = policy(self.env.state)
-                    #print("Action prob is ", action_probabilities)
+                    if t == 0:
+                        action_probabilities = policy(self.env.state)
+                        #print("Action prob is ", action_probabilities)
 
-                    # choose action according to
-                    # the probability distribution
-                    action = np.random.choice(np.arange(
-                        len(action_probabilities)),
-                        p=action_probabilities)
+                        # choose action according to
+                        # the probability distribution
+                        action = np.random.choice(np.arange(
+                            len(action_probabilities)),
+                            p=action_probabilities)
 
                     # action may be over size
                     action = np.mod(action, self.env.state)
@@ -325,6 +331,7 @@ class SARSA():
                     #print("Now Q is ", Q)
 
                     self.env.state = next_state
+                    action = best_next_action
                     #print("State updated to ", env.state)
         print("Return")
         return Q, stats
@@ -354,9 +361,9 @@ if __name__ == '__main__':
             Q2, stats2 = sarsa_train.fixed_seed(Q, plotting)
             cri = ""
             if sarsa_train.criteria == 1:
-                cri = "DD_pt"
-            elif sarsa_train.criteria == 2:
                 cri = "DD"
+            elif sarsa_train.criteria == 2:
+                cri = "DD_pt"
             else:
                 cri = "random"
             s = "sarsa "+num+" "+cri+" "

@@ -18,14 +18,15 @@ if __name__ == '__main__':
                      '/etc/app.ini')
     print(res)
     #  Train the model
-    algos = [q_learning_funcs, SARSA]
-    algos2 = [Random, EDD]
-    criterion = [1, 2, 3]
-    num_episodes_trains = [1000, 10000, 100000]
-    obj = 2
+    algos = [SARSA, q_learning_funcs]#[q_learning_funcs, SARSA]
+    algos2 = []#[Random, EDD]
+    criterion = [2]#[1, 2, 3]
+    num_episodes_trains = _conf.get('algorithms', 'num_episodes_trains').split()
+    #[1000, 10000, 100000]
+    obj = 1
 
     # plotting.plot_episode_stats(stats)
-    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/result100000.txt'
+    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/trainepisode_500.txt'
     with open(filename, 'a') as f:
         # algo of random and EDD
         for algo2 in algos2:
@@ -36,9 +37,9 @@ if __name__ == '__main__':
                 stats = model.run(plotting)
                 cri = ""
                 if env.criteria == 1:
-                    cri = "DD_pt"
-                elif env.criteria == 2:
                     cri = "DD"
+                elif env.criteria == 2:
+                    cri = "DD_pt"
                 s = model.name + " " + str(0) + " " + cri + " "
                 f.write(s)
                 f.write("\n")
