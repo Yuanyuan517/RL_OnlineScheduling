@@ -19,14 +19,14 @@ if __name__ == '__main__':
     print(res)
     #  Train the model
     algos = [SARSA, q_learning_funcs]#[q_learning_funcs, SARSA]
-    algos2 = []#[Random, EDD]
-    criterion = [2]#[1, 2, 3]
+    algos2 = [Random, EDD]
+    criterion = [1, 2, 3]
     num_episodes_trains = _conf.get('algorithms', 'num_episodes_trains').split()
     #[1000, 10000, 100000]
     obj = 1
 
     # plotting.plot_episode_stats(stats)
-    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/trainepisode_500.txt'
+    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/100000_V2.txt'
     with open(filename, 'a') as f:
         # algo of random and EDD
         for algo2 in algos2:
@@ -62,15 +62,15 @@ if __name__ == '__main__':
                     Q2, stats2 = train.fixed_seed(Q, plotting)
                     cri = ""
                     if train.criteria == 1:
-                        cri = "DD_pt"
-                    elif train.criteria == 2:
                         cri = "DD"
+                    elif train.criteria == 2:
+                        cri = "DD_pt"
                     else:
                         cri = "random"
                     s = train.name+" "+str(num)+" "+cri+" "
                     f.write(s)
                     f.write("\n")
-                    b = np.matrix(stats2.episode_rewards)
+                    b = np.matrix(stats2.episode_obj)
                     np.savetxt(f, b, fmt="%d")
                     f.write("\n")
                     print("New Stats", stats2)

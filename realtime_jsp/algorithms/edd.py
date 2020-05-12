@@ -35,7 +35,8 @@ class EDD():
 
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_test),
-            episode_rewards=np.zeros(self.num_episodes_test))
+            episode_rewards=np.zeros(self.num_episodes_test),
+            episode_obj=np.zeros(self.num_episodes_test))
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)

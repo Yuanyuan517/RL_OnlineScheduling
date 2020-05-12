@@ -171,14 +171,15 @@ class SARSA():
                     # - tardiness of all finished jobs
                     # - prediction of the tardiness of the just selected job
                     reward = -1*(stats.episode_rewards[i_episode] + tardi)
+                    stats.episode_rewards[i_episode] += reward
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     if self.obj == 1:
-                        stats.episode_rewards[i_episode] = max_tardinees
+                        stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        stats.episode_rewards[i_episode] = total_tardiness
+                        stats.episode_obj[i_episode] = total_tardiness
                     # print("Tardi is ", tardi, " max tardi is ", max_tardinees)
 
                     # done is True if episode terminated
@@ -218,7 +219,7 @@ class SARSA():
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_test),
             episode_rewards=np.zeros(self.num_episodes_test),
-            episode_obj=np.zeros(self.num_episodes_train))
+            episode_obj=np.zeros(self.num_episodes_test))
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)
@@ -300,14 +301,15 @@ class SARSA():
                     # - tardiness of all finished jobs
                     # - prediction of the tardiness of the just selected job
                     reward = -1*(stats.episode_rewards[i_episode] + tardi)
+                    stats.episode_rewards[i_episode] += reward
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     if self.obj == 1:
-                        stats.episode_rewards[i_episode] = max_tardinees
+                        stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        stats.episode_rewards[i_episode] = total_tardiness
+                        stats.episode_obj[i_episode] = total_tardiness
                     #print("Tardi is ", tardi, " max tardi is ", max_tardinees)
 
                     # done is True if episode terminated
@@ -369,7 +371,7 @@ if __name__ == '__main__':
             s = "sarsa "+num+" "+cri+" "
             f.write(s)
             f.write("\n")
-            b = np.matrix(stats2.episode_rewards)
+            b = np.matrix(stats2.episode_obj)
             np.savetxt(f, b, fmt="%d")
             f.write("\n")
             #f.write(s.join(map(str, stats2.episode_rewards)))

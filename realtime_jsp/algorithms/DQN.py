@@ -191,7 +191,9 @@ class dqn:
         # Keeps track of useful statistics
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_test),
-            episode_rewards=np.zeros(self.num_episodes_test))
+            episode_rewards=np.zeros(self.num_episodes_test),
+            episode_obj=np.zeros(self.num_episodes_test),
+        )
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)
@@ -262,14 +264,15 @@ class dqn:
                     # - tardiness of all finished jobs
                     # - prediction of the tardiness of the just selected job
                     reward = -1 * (total_tardiness + tardi)
+                    stats.episode_rewards[i_episode] += reward
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     if self.obj == 1:
-                        stats.episode_rewards[i_episode] = max_tardinees # note, here the reward is not the actual reward but the obj for comparing performance
+                        stats.episode_obj[i_episode] = max_tardinees # note, here the reward is not the actual reward but the obj for comparing performance
                     else:
-                        stats.episode_rewards[i_episode] = total_tardiness
+                        stats.episode_obj[i_episode] = total_tardiness
                     # stats.episode_rewards[i_episode] = reward
 
                     # done is True if episode terminated

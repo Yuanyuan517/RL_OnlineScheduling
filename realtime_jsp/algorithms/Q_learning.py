@@ -162,14 +162,15 @@ class q_learning_funcs():
                     # - tardiness of all finished jobs
                     # - prediction of the tardiness of the just selected job
                     reward = -1*(total_tardiness + tardi)   # ???????????
+                    stats.episode_rewards[i_episode] += reward
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     if self.obj == 1:
-                        stats.episode_rewards[i_episode] = max_tardinees
+                        stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        stats.episode_rewards[i_episode] = total_tardiness
+                        stats.episode_obj[i_episode] = total_tardiness
                     #stats.episode_rewards[i_episode] = reward
 
                     # done is True if episode terminated
@@ -208,7 +209,7 @@ class q_learning_funcs():
         stats = plotting.EpisodeStats(
             episode_lengths=np.zeros(self.num_episodes_test),
             episode_rewards=np.zeros(self.num_episodes_test),
-            episode_obj=np.zeros(self.num_episodes_train))
+            episode_obj=np.zeros(self.num_episodes_test))
 
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)
@@ -287,14 +288,15 @@ class q_learning_funcs():
                     # - tardiness of all finished jobs
                     # - prediction of the tardiness of the just selected job
                     reward = -1*(total_tardiness + tardi)
+                    stats.episode_rewards[i_episode] += reward
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     if self.obj == 1:
-                        stats.episode_rewards[i_episode] = max_tardinees
+                        stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        stats.episode_rewards[i_episode] = total_tardiness
+                        stats.episode_obj[i_episode] = total_tardiness
                     #stats.episode_rewards[i_episode] = reward
 
                     # done is True if episode terminated
