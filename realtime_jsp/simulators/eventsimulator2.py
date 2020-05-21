@@ -19,12 +19,15 @@ class EventSimulator2:
         self.current_time = 0
         self.seed = 0
         self.random = True
+        # for storing the total jobs created in one episode
+        self.total_jobs = []
 
     def reset(self):
         self.last_release_time = 0
         self.interarrival_time = 0
         self.current_time = 0
         self.seed = 0
+        self.total_jobs = []
 
     def set_randomness(self, random):
         self.random = random
@@ -41,16 +44,26 @@ class EventSimulator2:
             if not self.random:
                 np.random.seed(self.seed)
             num = np.random.randint(self.min_num_release_job, self.max_num_release_job, 1)
-            released_new_jobs = self.release_new_job(num[0])
+            released_new_jobs = self.arrive_new_job(num[0])
             next_interarrival_time = self.get_interarrival_time()
             # update time status
             self.interarrival_time = next_interarrival_time
             self.last_release_time = t
-        updated_machine, processed_pt, tardiness = self.check_machine_idle_and_update(machine, granularity)
-        return np.array([to_release, released_new_jobs, updated_machine, processed_pt, tardiness])
+        # updated_machine, processed_pt, tardiness = self.check_machine_idle_and_update(machine, granularity)
+        return np.array([to_release, released_new_jobs])#, updated_machine, processed_pt, tardiness])
 
-    # release one job at a time, it can be modified later
-    def release_new_job(self, number):
+    def store_arrived_job(self):
+        filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/jobs.txt'
+        with open(filename, 'a') as f:
+            f.write("nJobs = "+str(len(self.total_jobs))+";\n")
+            f.write("Jobs ={")
+            for j in self.total_jobs:
+                s = "<"+str(j.pt)+", "+str(j.due_t)+">,"
+                f.write(s)
+                f.write("\n")
+            f.write("};\n")
+
+    def arrive_new_job(self, number):
         jobs = []
 
         if not self.random:
@@ -60,17 +73,20 @@ class EventSimulator2:
             # pt = int(np.random.exponential(self.processing_mean_time, 1))
         if not self.random:
             np.random.seed(self.seed)
-        ints = np.random.exponential(self.max_processing_time, number)
+        ints = np.random.exponential(7*self.max_processing_time, number)
         for i in range(number):
             due_t = int(ints[i]) +pts[i]+ self.current_time+1  # Can be modified
             job = JobDue(due_t, pts[i], -1)
             job.setID()
             #print("Released job ", job.to_string(), " at time ", self.current_time)
             jobs.append(job)
+            # self.total_jobs.append(job)
+            self.total_jobs.append(JobDue(due_t, pts[i], -1))
         return jobs
 
     def check_job_release(self):
-        if self.last_release_time + self.interarrival_time == self.current_time:
+        # use < because interarrival time can be 0
+        if self.last_release_time + self.interarrival_time <= self.current_time:
             #print("Release")
             return True
         #print("Not Release")
@@ -80,7 +96,7 @@ class EventSimulator2:
         if not self.random:
             np.random.seed(self.seed)
         num = int(np.random.exponential(self.interarrival_mean_time, 1))
-        #print("interrival is ", num)
+        #print("next interrival is ", num)
         return num
 
     # TO DO: add arrival like release
@@ -98,21 +114,23 @@ class EventSimulator2:
             idles.append(idle)
         return idles
 
-    def check_machine_idle_and_update(self, machine, granularity):
+    def check_machine_idle_and_update(self, current_time, machine, granularity):
         processed_pt = 0
         tardiness = 0
         # print("In event_simu, machine num is ", len(machines))
         if not machine.idle:
             job = machine.assigned_job
-            remained_pt = job.pt - (self.current_time - job.start_processing_t)
+            remained_pt = job.pt - (current_time - job.start_processing_t)
             if remained_pt <= 0:
                 processed_pt += granularity
-                tardiness = max(0, self.current_time - job.due_t + remained_pt)
+                tardiness = max(0, current_time - job.due_t + remained_pt)
+                #print("job Id ", job.counter, " Tardiness ", tardiness, " remain ", remained_pt, " currentT ", current_time)
                 machine.reset()
             else:
                 job.pt = remained_pt
                 machine.assigned_job = job
-            # print("Debug simulator， remained pt is ", remained_pt, " machine is idle? ", machine.idle)
+           # print("Debug simulator， remained pt is ", remained_pt, " job id ", job.counter, " machine is idle? ", machine.idle,
+           #       " tardiness ", tardiness, " currentT ", current_time)
         updated_machine = machine
-        return updated_machine, processed_pt, tardiness
+        return updated_machine, tardiness
 

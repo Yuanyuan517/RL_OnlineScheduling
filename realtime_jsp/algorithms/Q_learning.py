@@ -22,15 +22,15 @@ class q_learning_funcs():
         self.epsilon = float(settings.get('Q_learning', 'epsilon'))
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
-#        self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
+        self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
         self.num_episodes_train = 0#int(settings.get('algorithms', 'num_episodes_train'))
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
         # calculate number of actions and states
-        self.criteria = 1  # 1 is only DD, 2 DD+pt, 3 random
-        self.obj = 1  # 1 is min max tardiness, 2 is min total tardiness
+        self.criteria = 2  # 1 is only DD, 2 DD+pt, 3 random
+        self.obj = 2  # 1 is min max tardiness, 2 is min total tardiness
         self.name = "Q"
 
 
@@ -94,7 +94,7 @@ class q_learning_funcs():
         granularity = 1
         # For every episode
         for i_episode in range(self.num_episodes_train):
-            print("New Episode!!!!!!!!!!!!")
+            #print("New Episode!!!!!!!!!!!!")
             total_tardiness = 0  # tardiness of all finished jobs
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
             # Reset the environment and pick the first action
@@ -117,9 +117,9 @@ class q_learning_funcs():
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                self.env.machine = events[2]
-                tardiness = events[4]
-               # print(" env waiting size ", len(env.waiting_jobs))
+                # self.env.machine = events[2]
+                # tardiness = events[4]
+                # print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
                         self.env.waiting_jobs.append(job)
@@ -150,18 +150,16 @@ class q_learning_funcs():
                    # print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
-                    next_state, tardi, done, _ = self.env.step(action, events, t)
-
+                    next_state, tardi, done, updated_machine = self.env.step(action, event_simu, t, granularity)
+                    self.env.machine = updated_machine
                     # Update statistics
-                    # EDIT: April 20, 2020. use tardiness instead of reward
-                    total_tardiness += tardiness
+                    total_tardiness += tardi
                     # stats.episode_rewards[i_episode] += reward
                     stats.episode_lengths[i_episode] = t
 
                     # April/21/2020: the reward takes into account total tardiness
                     # - tardiness of all finished jobs
-                    # - prediction of the tardiness of the just selected job
-                    reward = -1*(total_tardiness + tardi)   # ???????????
+                    reward = -1*total_tardiness
                     stats.episode_rewards[i_episode] += reward
 
                     # April 22, 2020-use max_tardinees to represent the result
@@ -175,7 +173,7 @@ class q_learning_funcs():
 
                     # done is True if episode terminated
                     if done:
-                        print("Episode finished")
+                        #print("Episode finished")
                         break
 
                     # TD Update
@@ -190,7 +188,6 @@ class q_learning_funcs():
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
                     td_delta = td_target - Q[self.env.state][action]
                     Q[self.env.state][action] += self.alpha * td_delta
-                  #  print("Now Q is ", Q)
 
 
 
@@ -221,7 +218,7 @@ class q_learning_funcs():
         granularity = 1
         # For every episode
         for i_episode in range(self.num_episodes_test):
-            print("New Episode!!!!!!!!!!!! ", i_episode)
+            #print("New Episode!!!!!!!!!!!! ", i_episode)
             total_tardiness = 0  # tardiness of all finished jobs
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
             # Reset the environment and pick the first action
@@ -242,9 +239,9 @@ class q_learning_funcs():
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                self.env.machine = events[2]
-                tardiness = events[4]
-               # print(" env waiting size ", len(env.waiting_jobs))
+                #self.env.machine = events[2]
+                #tardiness = events[4]
+                # print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
                         self.env.waiting_jobs.append(job)
@@ -252,7 +249,7 @@ class q_learning_funcs():
                 if self.criteria != 3:
                     self.env.waiting_jobs.sort(key=self.takeDueTime)
                 self.env.state = len(self.env.waiting_jobs)
-               # print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
+                #print(" new env waiting size ", len(self.env.waiting_jobs), "env state ", self.env.state)
                 # env.remain_raw_pt -= events[3]
 
                 # get probabilities of all actions from current state
@@ -276,18 +273,16 @@ class q_learning_funcs():
                    # print("Choose action ", action, " state ", self.env.state)
 
                     # take action and get reward, transit to next state
-                    next_state, tardi, done, _ = self.env.step(action, events, t)
-
+                    next_state, tardi, done, updated_machine = self.env.step(action, event_simu, t, granularity)
+                    self.env.machine = updated_machine
                     # Update statistics
-                    # EDIT: April 20, 2020. use tardiness instead of reward
-                    total_tardiness += tardiness
+                    total_tardiness += tardi
                     # stats.episode_rewards[i_episode] += reward
                     stats.episode_lengths[i_episode] = t
 
                     # April/21/2020: the reward takes into account total tardiness
                     # - tardiness of all finished jobs
-                    # - prediction of the tardiness of the just selected job
-                    reward = -1*(total_tardiness + tardi)
+                    reward = -1*total_tardiness
                     stats.episode_rewards[i_episode] += reward
 
                     # April 22, 2020-use max_tardinees to represent the result
@@ -296,6 +291,7 @@ class q_learning_funcs():
                     if self.obj == 1:
                         stats.episode_obj[i_episode] = max_tardinees
                     else:
+                        #print("TOtal ", total_tardiness, " tardi ", tardi)
                         stats.episode_obj[i_episode] = total_tardiness
                     #stats.episode_rewards[i_episode] = reward
 
@@ -327,18 +323,21 @@ if __name__ == '__main__':
     plotting = Plotting()
     env = JSPEnv2()
     _conf = ConfigParser()
-    _conf.read('./etc/app.ini')
+    _conf.read('/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp'
+                     '/etc/app.ini')
     # num_episode = 500
     #  Train the model
     Q_learn = q_learning_funcs(env, _conf)
-    # event simulator is not fixed
-    Q, stats = Q_learn.learn(plotting)
-    print("stats ", stats)
-    plotting.plot_episode_stats(stats)
+    for num in Q_learn.num_episodes_trains:
+        Q_learn.num_episodes_train = int(num)
+        # event simulator is not fixed
+        Q, stats = Q_learn.learn(plotting)
+        print("stats ", stats)
+        plotting.plot_episode_stats(stats)
 
-    # event simulator is fixed
-    # test the model with calculated Q
-    # Q_learn.num_episodes = 10
-    Q2, stats2 = Q_learn.fixed_seed(Q, plotting)
-    print("New Stats", stats2)
-    plotting.plot_episode_stats(stats2)
+        # event simulator is fixed
+        # test the model with calculated Q
+        # Q_learn.num_episodes = 10
+        Q2, stats2 = Q_learn.fixed_seed(Q, plotting)
+        print("New Stats", stats2)
+        plotting.plot_episode_stats(stats2)

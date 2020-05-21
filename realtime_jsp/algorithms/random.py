@@ -25,7 +25,7 @@ class Random():
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
         self.action_set = set()
         self.state_set = set()
-        self.obj = 1  # 1 is min max tardiness, 2 is min total tardiness
+        self.obj = 2  # 1 is min max tardiness, 2 is min total tardiness
         self.name = "Random"
 
     def run(self, plotting):
@@ -44,12 +44,10 @@ class Random():
         event_simu = EventSimulator2(self.settings)
         event_simu.set_randomness(False)
 
-
-
         granularity = 1
         # For every episode
         for i_episode in range(self.num_episodes_test):
-            print("New Episode!!!!!!!!!!!! ", i_episode)
+            #print("New Episode!!!!!!!!!!!! ", i_episode)
             total_tardiness = 0  # tardiness of all finished jobs
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
 
@@ -74,8 +72,8 @@ class Random():
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                self.env.machine = events[2]
-                tardiness = events[4]
+                #self.env.machine = events[2]
+                #tardiness = events[4]
                #print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
@@ -85,42 +83,30 @@ class Random():
                 #print(" new env waiting size ", len(env.waiting_jobs), "env state ", env.state)
                 # env.remain_raw_pt -= events[3]
 
-                # get probabilities of all actions from current state
-                # if no released and waited job, then dummy action
                 # EDIT-23/04/2020: enable preemption
                 if self.env.state == 0: #or env.machine.idle is False:
                     pass
-                    # action = 0
-                    #print("Action is 0")
                 else:
-                    # choose action according to
-                    # the earliest due date
-                    action = random.randint(1, self.env.state)-1 # the jobs are sorted by due date in step so use -1 to indicate this is EDD
+                    # choose action randomly
+                    action = random.randint(1, self.env.state) - 1
                     self.action_set.add(action)
                     # print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
                     self.env.debug_waiting_jobs()
-                    next_state, tardi, done, _ = self.env.step(action, events, t)
-
-
+                    next_state, tardi, done, updated_machine = self.env.step(action, event_simu, t, granularity)
+                    self.env.machine = updated_machine
                     # Update statistics
-                    # EDIT: April 20, 2020. use tardiness instead of reward
-                    total_tardiness += tardiness
+                    total_tardiness += tardi
                     # stats.episode_rewards[i_episode] += reward
                     stats.episode_lengths[i_episode] = t
-
-                    # April/21/2020: the reward takes into account total tardiness
-                    # - tardiness of all finished jobs
-                    # - prediction of the tardiness of the just selected job
-                    # reward = -1*(stats.episode_rewards[i_episode] + tardi)
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     if self.obj == 1:
-                        stats.episode_rewards[i_episode] = max_tardinees
+                        stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        stats.episode_rewards[i_episode] = total_tardiness
+                        stats.episode_obj[i_episode] = total_tardiness
                     #stats.episode_rewards[i_episode] = reward
 
                     # done is True if episode terminated

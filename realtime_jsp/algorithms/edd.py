@@ -22,7 +22,7 @@ class EDD():
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
-        self.obj = 1  # 1 is min max tardiness, 2 is min total tardiness
+        self.obj = 2  # 1 is min max tardiness, 2 is min total tardiness
         self.name = "EDD"
 
     def run(self, plotting):
@@ -46,7 +46,7 @@ class EDD():
         granularity = 1
         # For every episode
         for i_episode in range(self.num_episodes_test):
-            print("New Episode!!!!!!!!!!!! ", i_episode)
+            #print("New Episode!!!!!!!!!!!! ", i_episode)
             total_tardiness = 0  # tardiness of all finished jobs
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
 
@@ -70,8 +70,8 @@ class EDD():
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                self.env.machine = events[2]
-                tardiness = events[4]
+                #self.env.machine = events[2]
+                #tardiness = events[4]
                #print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
@@ -95,11 +95,12 @@ class EDD():
                     #print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
-                    next_state, tardi, done, _ = self.env.step(action, events, t)
-
+                    next_state, tardi, done, updated_machine = self.env.step(action, event_simu, t, granularity)
+                    self.env.machine = updated_machine
                     # Update statistics
+                    total_tardiness += tardi
                     # EDIT: April 20, 2020. use tardiness instead of reward
-                    total_tardiness += tardiness
+                    #total_tardiness += tardiness
                     # stats.episode_rewards[i_episode] += reward
                     stats.episode_lengths[i_episode] = t
 
@@ -111,9 +112,9 @@ class EDD():
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     if self.obj == 1:
-                        stats.episode_rewards[i_episode] = max_tardinees
+                        stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        stats.episode_rewards[i_episode] = total_tardiness
+                        stats.episode_obj[i_episode] = total_tardiness
                     #stats.episode_rewards[i_episode] = reward
 
                     # done is True if episode terminated

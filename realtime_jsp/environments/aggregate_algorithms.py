@@ -18,41 +18,44 @@ if __name__ == '__main__':
                      '/etc/app.ini')
     print(res)
     #  Train the model
-    algos = [SARSA, q_learning_funcs]#[q_learning_funcs, SARSA]
-    algos2 = [Random, EDD]
+    algos = [q_learning_funcs, SARSA]
+    algos2 = []#[Random, EDD]
     criterion = [1, 2, 3]
     num_episodes_trains = _conf.get('algorithms', 'num_episodes_trains').split()
-    #[1000, 10000, 100000]
+    lambda_value = 1/int(_conf.get('event', 'interarrival_time'))
+
     obj = 1
+    compare_best_setting = True
 
     # plotting.plot_episode_stats(stats)
-    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/100000_V2.txt'
+    filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
+               'bestSettingQSarsaV3.txt'
+               #'1000V3.txt'
     with open(filename, 'a') as f:
         # algo of random and EDD
         for algo2 in algos2:
-            for i in range(len(criterion)-1):
-                env.criteria = criterion[i]
-                model = algo2(env, _conf)
-                model.obj = obj
-                stats = model.run(plotting)
-                cri = ""
-                if env.criteria == 1:
-                    cri = "DD"
-                elif env.criteria == 2:
-                    cri = "DD_pt"
-                s = model.name + " " + str(0) + " " + cri + " "
-                f.write(s)
-                f.write("\n")
-                b = np.matrix(stats.episode_rewards)
-                np.savetxt(f, b, fmt="%d")
-                f.write("\n")
+            model = algo2(env, _conf)
+            model.obj = obj
+            stats = model.run(plotting)
+            s = model.name + " " + str(0) + " "
+            f.write(s)
+            f.write("\n")
+            b = np.matrix(stats.episode_obj)
+            np.savetxt(f, b, fmt="%d")
+            f.write("\n")
         # algo of RL
         #'''
         for algo in algos:
             for c in criterion:
+                if compare_best_setting:
+                    c = 2
                 for num in num_episodes_trains:
                     env.criteria = c
+                    if compare_best_setting:
+                        env.interarrival_mean_time = 5 # compare scale 10, 20, 5
                     train = algo(env, _conf)
+                    if compare_best_setting:
+                        train.size_time_steps = 5000
                     train.obj = obj
                     train.criteria = c
                     train.num_episodes_train = int(num)
@@ -67,13 +70,15 @@ if __name__ == '__main__':
                         cri = "DD_pt"
                     else:
                         cri = "random"
-                    s = train.name+" "+str(num)+" "+cri+" "
+                    s = train.name+" "+str(num)+" "+cri#+" "+str(lambda_value)
                     f.write(s)
-                    f.write("\n")
+                    f.write(" ")
                     b = np.matrix(stats2.episode_obj)
                     np.savetxt(f, b, fmt="%d")
                     f.write("\n")
                     print("New Stats", stats2)
+                if compare_best_setting: # no need to iterate criterion loop
+                    break
         #'''
 
 

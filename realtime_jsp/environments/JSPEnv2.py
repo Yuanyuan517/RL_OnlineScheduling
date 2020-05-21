@@ -111,10 +111,10 @@ class JSPEnv2(gym.Env):
     '''
 
     # no dummy action considered
-    def step(self, action, events, t):
+    def step(self, action, event_simu, t, granularity):
         # assert self.action_space.contains(action), "%r (%s) invalid" % (action, type(action))
         # TO DO: change to multiple machines
-        to_release, released_new_jobs, next_interarrival_time, idles = events[0], events[1], events[2], events[3]
+        #to_release, released_new_jobs, next_interarrival_time = events[0], events[1], events[2]
         # print("Debug x ", x)
         '''
         if to_release:
@@ -125,7 +125,7 @@ class JSPEnv2(gym.Env):
         # if self.machine.idle:
         # action maps which job to select
         # print("Waiting size ", len(self.waiting_jobs))
-       # print("In JSPEnv2, Machine is idle. Debug action ", action, " job ", self.waiting_jobs[action].to_string(), " waiting size ", len(self.waiting_jobs))
+        # print("In JSPEnv2, Machine is idle. Debug action ", action, " job ", self.waiting_jobs[action].to_string(), " waiting size ", len(self.waiting_jobs))
         # print("In JSPEnv2, Job is ", self.waiting_jobs[action].to_string())
         if action != -1:
             job_to_process = self.waiting_jobs[action]
@@ -135,8 +135,8 @@ class JSPEnv2(gym.Env):
                 # print("Check before reassigning job ", job_to_process)
                 self.machine.process_job(job_to_process, t)
                 assigned_job.pt -= t - assigned_job.start_processing_t
-                self.waiting_jobs[0] = assigned_job
-                del self.waiting_jobs[action]
+                self.waiting_jobs[action] = assigned_job
+                # del self.waiting_jobs[action]
                 #print("Removed job ", job_to_process.to_string(), " size ", len(self.waiting_jobs))
             else:
                 self.machine.process_job(job_to_process, t)
@@ -146,7 +146,7 @@ class JSPEnv2(gym.Env):
         # if EDD
         if action == -1:
             # sort jobs only according to the due date, 1st one is the one with smallest due date (urgent)
-            print("waiting size ", len(self.waiting_jobs))
+            #print("waiting size ", len(self.waiting_jobs))
             self.waiting_jobs.sort(key=self.takeDueTime)
             job_to_process = self.waiting_jobs[0]
             # preemption only when due date is smaller
@@ -161,9 +161,11 @@ class JSPEnv2(gym.Env):
                 self.machine.process_job(job_to_process, t)
                 del self.waiting_jobs[0]
         new_state = len(self.waiting_jobs)
-
-        # April/21/2020, only calculate the tardiness of finished job + the just assigned one
-        tardi = self.machine.assigned_job.pt + self.machine.assigned_job.start_processing_t - t
+        #print("Debug in JobEnv, new_state is ", new_state)
+        # forward one step, and calculate tardiness
+        # May/18/2020, only calculate the tardiness of finished job at t+1
+        updated_machine, tardi = event_simu.check_machine_idle_and_update(t+1, self.machine, granularity)
+        # tardi = self.machine.assigned_job.pt + self.machine.assigned_job.start_processing_t - t
         '''
         # calculate current total tardiness as reward
         reward = 0
@@ -184,10 +186,10 @@ class JSPEnv2(gym.Env):
         '''
 
         done = bool(new_state == 0)
-        return new_state, tardi, done, {}
+        return new_state, tardi, done, updated_machine #{}
 
     def takeDueTime(self, job):
-        print("job type ", self.criteria)
+        # print("job type ", self.criteria)
         if self.criteria == 1:
             return job.due_t
         if self.criteria == 2:
@@ -203,11 +205,11 @@ class JSPEnv2(gym.Env):
         # reset time t = 0, seed = 0
         simulator.reset()
         machine = Machine()
-        job = simulator.release_new_job(1)#self.create_jobs(1)
+        job = simulator.arrive_new_job(1)#self.create_jobs(1)
         machine.process_job(job[0], 0)
         self.machine = machine
         # always start from 3 waiting jobs
-        self.waiting_jobs = simulator.release_new_job(3)
+        self.waiting_jobs = simulator.arrive_new_job(3)
         # print("Debug created machine with size ", len(machines))
         self.action_space = spaces.Discrete(len(self.waiting_jobs))
         self.state = len(self.waiting_jobs)+1 # plus dummy one  #np.array([travel_jobs, wait_jobs, machines, i])  # np.array([num_wait, num_process, num_travel])

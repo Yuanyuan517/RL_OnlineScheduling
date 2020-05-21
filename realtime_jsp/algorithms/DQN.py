@@ -23,15 +23,15 @@ class dqn:
         # Initialize atributes
         self.settings = settings
         self.env = env
-        self._state_size = 15#enviroment.observation_space.n
-        self._action_size = 10#enviroment.action_space.n
+        self._state_size = 2000#15#enviroment.observation_space.n
+        self._action_size = 2000#10#enviroment.action_space.n
         self._optimizer = optimizer
 
         self.expirience_replay = deque(maxlen=2000)
 
         # Initialize discount and exploration rate
-        self.gamma = 0.6
-        self.epsilon = 0.1
+        self.gamma = float(settings.get('Q_learning', 'discount_factor'))##0.6
+        self.epsilon = float(settings.get('Q_learning', 'epsilon'))#0.1
 
         # Build networks
         # 1. Q-Network calculates Q-Value in the state St
@@ -40,16 +40,17 @@ class dqn:
         self.target_network = self._build_compile_model()
         self.alighn_target_model()
 
-        self.num_episodes_train = int(settings.get('algorithms', 'num_episodes_train'))
+        self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
+        self.num_episodes_train = 0
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
 
-        self.criteria = 1  # 1 is only DD, 2 DD+pt, 3 random
-        self.obj = 1  # 1 is min max tardiness, 2 is min total tardiness
+        self.criteria = 2  # 1 is only DD, 2 DD+pt, 3 random
+        self.obj = 2  # 1 is min max tardiness, 2 is min total tardiness
         self.name = "DQN"
-        self.save_path = "dqn.h5"
+        self.save_path = "dqnV2.h5"
 
     # the agent has to store previous experiences in a local memory
     def store(self, state, action, reward, next_state, terminated):
@@ -139,8 +140,8 @@ class dqn:
                 # environment related ops
                 events = event_simu.event_simulation(timestep, self.env.machine, granularity)
 
-                self.env.machine = events[2]
-                tardiness = events[4]
+                #self.env.machine = events[2]
+                #tardiness = events[4]
                 # print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
@@ -150,17 +151,21 @@ class dqn:
                 if self.env.state == 0: # no job is waiting
                     pass
                 else:
-                    print("Ch1 ", action, self.env.state)
+                    #print("Ch1 ", action, self.env.state)
                     if type(self.env.state) is int:
                         action = action % self.env.state
                     else:
                         action = action % self.env.state[0]
-                    print("Ch2 ", action)
+                    #print("Ch2 ", action)
                     # Take action
-                    next_state, tardi, terminated, info = self.env.step(action, events, timestep)
-                    # next_state = np.reshape(next_state, [1, 1])
-                    total_tardiness += tardiness
-                    reward = -1 * (total_tardiness + tardi)
+                    next_state, tardi, done, updated_machine = self.env.step(action, event_simu, timestep, granularity)
+                    self.env.machine = updated_machine
+                    # Update statistics
+                    total_tardiness += tardi
+
+                    # April/21/2020: the reward takes into account total tardiness
+                    # - tardiness of all finished jobs
+                    reward = -1 * total_tardiness
                     agent.store(self.env.state, action, reward, next_state, terminated)
 
                     self.env.state = next_state
@@ -224,8 +229,8 @@ class dqn:
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                self.env.machine = events[2]
-                tardiness = events[4]
+                # self.env.machine = events[2]
+                # tardiness = events[4]
                 # print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
@@ -252,18 +257,16 @@ class dqn:
                     # print("Choose action ", action, " state ", self.env.state)
 
                     # take action and get reward, transit to next state
-                    next_state, tardi, done, _ = self.env.step(action, events, t)
-
+                    next_state, tardi, done, updated_machine = self.env.step(action, event_simu, t, granularity)
+                    self.env.machine = updated_machine
                     # Update statistics
-                    # EDIT: April 20, 2020. use tardiness instead of reward
-                    total_tardiness += tardiness
+                    total_tardiness += tardi
                     # stats.episode_rewards[i_episode] += reward
                     stats.episode_lengths[i_episode] = t
 
                     # April/21/2020: the reward takes into account total tardiness
                     # - tardiness of all finished jobs
-                    # - prediction of the tardiness of the just selected job
-                    reward = -1 * (total_tardiness + tardi)
+                    reward = -1 * total_tardiness
                     stats.episode_rewards[i_episode] += reward
 
                     # April 22, 2020-use max_tardinees to represent the result
@@ -273,8 +276,6 @@ class dqn:
                         stats.episode_obj[i_episode] = max_tardinees # note, here the reward is not the actual reward but the obj for comparing performance
                     else:
                         stats.episode_obj[i_episode] = total_tardiness
-                    # stats.episode_rewards[i_episode] = reward
-
                     # done is True if episode terminated
                     if done:
                         break
@@ -309,13 +310,15 @@ if __name__ == '__main__':
 
     agent = dqn(env, optimizer, _conf)
     # load saved model
-    agent.q_network = models.load_model('dqn.h5')
-    agent.q_network.summary()
+    # agent.q_network = models.load_model('dqnV2.h5')
+    # agent.q_network.summary()
     # train
-    #agent.training_steps()
-    # test
-    matplotlib.style.use('ggplot')
-    plotting = Plotting()
-    stats2 = agent.test(plotting)
-    plotting.plot_episode_stats(stats2)
-    print("New Stats", stats2)
+    for num in agent.num_episodes_trains:
+        agent.num_episodes_train = int(num)
+        agent.training_steps()
+        # test
+        matplotlib.style.use('ggplot')
+        plotting = Plotting()
+        stats2 = agent.test(plotting)
+        plotting.plot_episode_stats(stats2)
+        print("New Stats", stats2)

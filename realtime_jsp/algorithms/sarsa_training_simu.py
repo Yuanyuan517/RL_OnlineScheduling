@@ -129,8 +129,8 @@ class SARSATrain():
                 # update pt
                 # released_new_jobs = events[1]
                 # for new_job in released_new_job
-                self.env.machine = events[2]
-                tardiness = events[4]
+                #self.env.machine = events[2]
+                #tardiness = events[4]
                 #print(" env waiting size ", len(env.waiting_jobs))
                 if events[0]:
                     for job in events[1]:
@@ -151,7 +151,7 @@ class SARSATrain():
                     #print("Action is 0")
                 else:
                     # for other times, the action will be used from the previous selection (TO Clean)
-                    if t==0:
+                    if t == 0:
                         action_probabilities = policy(self.env.state)
                         #print("Action prob is ", action_probabilities)
 
@@ -161,29 +161,31 @@ class SARSATrain():
                             len(action_probabilities)),
                             p=action_probabilities)
 
-                    # action may be over size (May 6th: shouldnt occur with current setting)
-                   # action = np.mod(action, self.env.state)
-                    #print("Choose action ", action, " state ", env.state)
+                    # action may be over size
+                    action = np.mod(action, self.env.state)
+                    print("Choose action ", action, " state ", env.state)
 
                     # take action and get reward, transit to next state
-                    next_state, tardi, done, _ = self.env.step(action, events, t)
-
+                    next_state, tardi, done, updated_machine = self.env.step(action, event_simu, t, granularity)
+                    self.env.machine = updated_machine
                     # Update statistics
-                    # EDIT: April 20, 2020. use tardiness instead of reward
-                    total_tardiness += tardiness
+                    total_tardiness += tardi
                     # stats.episode_rewards[i_episode] += reward
                     stats.episode_lengths[i_episode] = t
 
                     # April/21/2020: the reward takes into account total tardiness
                     # - tardiness of all finished jobs
                     # - prediction of the tardiness of the just selected job
-                    reward = -1*(stats.episode_rewards[i_episode] + tardi)
+                    reward = -1*total_tardiness#tardi+stats.episode_rewards[i_episode]
 
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     stats.episode_rewards[i_episode] += reward
-                    stats.episode_obj[i_episode] = max_tardinees
+                    if self.obj == 1:
+                        stats.episode_obj[i_episode] = max_tardinees
+                    else:
+                        stats.episode_obj[i_episode] = total_tardiness
                     '''
                     if self.obj == 1:
                         stats.episode_rewards[i_episode] = max_tardinees

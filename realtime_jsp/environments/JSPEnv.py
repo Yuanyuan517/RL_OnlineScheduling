@@ -180,7 +180,7 @@ class JSPEnv(gym.Env):
         t = 0
         for m in range(self.machine_size):
             machine = Machine()
-            job = simulator.release_new_job(t, 1)#self.create_jobs(1)
+            job = simulator.arrive_new_job(t, 1)#self.create_jobs(1)
             # assume the job is new, so remain_raw_pt = raw_pt
             self.remain_raw_pt += job[0].pt
             self.raw_pt = self.remain_raw_pt
@@ -190,7 +190,7 @@ class JSPEnv(gym.Env):
         # num_process = random.randint(0, 1)
         # process_jobs = self.create_jobs(num_process)
         num_travel = random.randint(0, 6)
-        travel_jobs = simulator.release_new_job(t, num_travel) # self.create_jobs(num_travel)
+        travel_jobs = simulator.arrive_new_job(t, num_travel) # self.create_jobs(num_travel)
         # print("Debug created machine with size ", len(machines))
 
         self.state = np.array([travel_jobs, wait_jobs, machines, i])  # np.array([num_wait, num_process, num_travel])

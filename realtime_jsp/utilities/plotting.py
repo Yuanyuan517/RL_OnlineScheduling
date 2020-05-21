@@ -104,8 +104,8 @@ class Plotting:
                                                                     min_periods=smoothing_window).mean()
         plt.plot(obj_smoothed)
         plt.xlabel("Episode")
-        plt.ylabel("Episode Maximum Tardiness")
-        plt.title("Episode Maximum Tardiness over Time (Smoothed over window size {})".format(smoothing_window))
+        plt.ylabel("Episode Total Tardiness")
+        plt.title("Episode Total Tardiness over Time (Smoothed over window size {})".format(smoothing_window))
         if noshow:
             plt.close(fig4)
         else:
