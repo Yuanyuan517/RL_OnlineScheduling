@@ -188,6 +188,7 @@ class q_learning_funcs():
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
                     td_delta = td_target - Q[self.env.state][action]
                     Q[self.env.state][action] += self.alpha * td_delta
+                  #  print("Now Q is ", Q)
 
 
 
