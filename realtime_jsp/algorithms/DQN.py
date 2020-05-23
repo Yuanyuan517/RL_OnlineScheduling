@@ -43,7 +43,7 @@ class dqn:
         self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
         self.num_episodes_train = 0
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
-        self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
+        self.size_time_steps = 5000#int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
 
@@ -310,15 +310,15 @@ if __name__ == '__main__':
 
     agent = dqn(env, optimizer, _conf)
     # load saved model
-    # agent.q_network = models.load_model('dqnV2.h5')
-    # agent.q_network.summary()
+    agent.q_network = models.load_model(agent.save_path)
+    agent.q_network.summary()
     # train
-    for num in agent.num_episodes_trains:
-        agent.num_episodes_train = int(num)
-        agent.training_steps()
-        # test
-        matplotlib.style.use('ggplot')
-        plotting = Plotting()
-        stats2 = agent.test(plotting)
-        plotting.plot_episode_stats(stats2)
-        print("New Stats", stats2)
+    #for num in agent.num_episodes_trains:
+    #    agent.num_episodes_train = int(num)
+    #    agent.training_steps()
+    # test
+    matplotlib.style.use('ggplot')
+    plotting = Plotting()
+    stats2 = agent.test(plotting)
+    plotting.plot_episode_stats(stats2)
+    print("New Stats", stats2)

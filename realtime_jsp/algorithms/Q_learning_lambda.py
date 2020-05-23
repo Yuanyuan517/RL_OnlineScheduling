@@ -87,19 +87,21 @@ class Q_Lambda():
         # Action value function
         # A nested dictionary that maps
         # state -> (action -> action-value).
-        Q = None
+        Q =np.zeros((self.state_size_max, self.action_size_max))#None
+        policy = self.create_epsilon_greedy_policy(Q)
         granularity = 1
         # For every episode
         for i_episode in range(self.num_episodes_train):
-            #print("New Episode!!!!!!!!!!!!")
+            print("TrainNew Episode ", i_episode)
             total_tardiness = 0  # tardiness of all finished jobs
             max_tardinees = 0  # max tardiness among all finished + just-being-assigned jobs
             # Reset the environment and pick the first action
             self.env.state = self.env.reset(event_simu)
+            '''
             if Q is None:
                 Q = defaultdict(lambda: np.zeros(self.env.state))
                 policy = self.create_epsilon_greedy_policy(Q)
-
+            '''
             eligibility = np.zeros((self.state_size_max, self.action_size_max))
 
             for t in range(self.size_time_steps):
@@ -141,34 +143,38 @@ class Q_Lambda():
                     reward = -1*total_tardiness
                     stats.episode_rewards[i_episode] += reward
 
+                    '''
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     if self.obj == 1:
                         stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        stats.episode_obj[i_episode] = total_tardiness
+                    '''
+                    stats.episode_obj[i_episode] = total_tardiness
 
                     # done is True if episode terminated
                     if done:
                         #print("Episode finished")
                         break
 
-                    # TD Update
+                    '''
                     if next_state >= len(Q[next_state]):
                         diff = next_state - len(Q[next_state]) + 1
                         for i in range(diff):
                             Q[next_state] = np.append(Q[next_state], 0)
-
+                    '''
                     # update eligibility
                     eligibility[self.env.state][action] += 1.0
-
+                    # TD Update
                     best_next_action = np.argmax(Q[next_state])
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
                     td_delta = td_target - Q[self.env.state][action]
+                    '''
                     for i in range(len(Q)):
                         for j in range(len(Q[i])):
-                            Q[i][j] += self.alpha * td_delta * eligibility[i][j]
+                    '''
+                    Q += self.alpha * td_delta * eligibility
 
                     action_probabilities = policy(self.env.state)
 
@@ -266,32 +272,38 @@ class Q_Lambda():
                     reward = -1*total_tardiness
                     stats.episode_rewards[i_episode] += reward
 
+                    '''
                     # April 22, 2020-use max_tardinees to represent the result
                     max_tardinees = max_tardinees if tardi < max_tardinees else tardi
                     # April 26: enable the option of min total tardiness
                     if self.obj == 1:
                         stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        stats.episode_obj[i_episode] = total_tardiness
+                    '''
+                    stats.episode_obj[i_episode] = total_tardiness
 
                     # done is True if episode terminated
                     if done:
                         break
 
-                    # TD Update
+                    '''
                     if next_state >= len(Q[next_state]):
                         diff = next_state - len(Q[next_state]) + 1
                         for i in range(diff):
                             Q[next_state] = np.append(Q[next_state], 0)
+                    '''
                     # update eligibility
                     eligibility[self.env.state][action] += 1.0
 
+                    # TD Update
                     best_next_action = np.argmax(Q[next_state])
                     td_target = reward + self.discount_factor * Q[next_state][best_next_action]
                     td_delta = td_target - Q[self.env.state][action]
-                    for i in range(len(Q)):
+                    '''
+                     for i in range(len(Q)):
                         for j in range(len(Q[i])):
-                            Q[i][j] += self.alpha * td_delta * eligibility[i][j]
+                    '''
+                    Q += self.alpha * td_delta * eligibility
 
                     action_probabilities = policy(self.env.state)
 
