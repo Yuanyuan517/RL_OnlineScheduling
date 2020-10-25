@@ -1,6 +1,6 @@
 # coding=utf-8
 import numpy as np
-from realtime_jsp.environments.jobs.jobdue import JobDue
+from environments.jobs.jobdue import JobDue
 
 
 class EventSimulator2:
@@ -21,6 +21,7 @@ class EventSimulator2:
         self.random = True
         # for storing the total jobs created in one episode
         self.total_jobs = []
+        self.episode = 0
 
     def reset(self):
         self.last_release_time = 0
@@ -78,7 +79,7 @@ class EventSimulator2:
             due_t = int(ints[i]) +pts[i]+ self.current_time+1  # Can be modified
             job = JobDue(due_t, pts[i], -1)
             job.setID()
-            #print("Released job ", job.to_string(), " at time ", self.current_time)
+            print("Released job ", job.to_string(), " at time ", self.current_time)
             jobs.append(job)
             # self.total_jobs.append(job)
             self.total_jobs.append(JobDue(due_t, pts[i], -1))
@@ -96,11 +97,10 @@ class EventSimulator2:
         if not self.random:
             np.random.seed(self.seed)
         num = int(np.random.exponential(self.interarrival_mean_time, 1))
-        #print("next interrival is ", num)
+        print("next interrival is ", num)
         return num
 
     # TO DO: add arrival like release
-
 
     # according to the job assigned to the machine, if job is completed, then the machine is idle
     def check_machine_idle(self, machines):
@@ -124,13 +124,14 @@ class EventSimulator2:
             if remained_pt <= 0:
                 processed_pt += granularity
                 tardiness = max(0, current_time - job.due_t + remained_pt)
-                #print("job Id ", job.counter, " Tardiness ", tardiness, " remain ", remained_pt, " currentT ", current_time)
+                # print("job Id ", job.counter, " Tardiness ", tardiness, " remain ", remained_pt, " currentT ", current_time)
                 machine.reset()
             else:
                 job.pt = remained_pt
                 machine.assigned_job = job
-           # print("Debug simulator， remained pt is ", remained_pt, " job id ", job.counter, " machine is idle? ", machine.idle,
-           #       " tardiness ", tardiness, " currentT ", current_time)
+            if self.episode == 35:
+                print("Debug simulator， remained pt is ", remained_pt, " job id ", job.counter, " machine is idle? ", machine.idle,
+                   " tardiness ", tardiness, " currentT ", current_time)
         updated_machine = machine
         return updated_machine, tardiness
 

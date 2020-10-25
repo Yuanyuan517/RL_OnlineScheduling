@@ -2,11 +2,11 @@ import numpy as np
 import itertools
 import matplotlib.style
 from collections import defaultdict
-from realtime_jsp.simulators.eventsimulator2 import EventSimulator2
+from simulators.eventsimulator2 import EventSimulator2
 from configparser import ConfigParser
-from realtime_jsp.environments.JSPEnv2 import JSPEnv2
-from realtime_jsp.utilities.plotting import Plotting
-from realtime_jsp.simulators.utility import generate_random_seeds
+from environments.JSPEnv2 import JSPEnv2
+from utilities.plotting import Plotting
+from simulators.utility import generate_random_seeds
 
 '''
 Based on: https://www.geeksforgeeks.org/sarsa-reinforcement-learning/
@@ -22,13 +22,13 @@ class SARSA_L():
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
         self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
-        self.num_episodes_train = 500  # int(settings.get('algorithms', 'num_episodes_train'))
-        self.num_episodes_test = 50  # int(settings.get('algorithms', 'num_episodes_test'))
+        self.num_episodes_train = 1  # int(settings.get('algorithms', 'num_episodes_train'))
+        self.num_episodes_test = 1  # int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
         # calculate number of actions and states
-        self.criterion = [1, 2, 3]
+        self.criterion = [3]#[1, 2, 3]
         self.criteria = 1 # 1 is only DD, 2 DD+pt, 3 random
         self.obj = 2 # 1 is min max tardiness, 2 is min total tardiness
         self.name = "SarsaLambda"
@@ -68,7 +68,7 @@ class SARSA_L():
     def choose_action(self, Q, state):
         num_actions = state
         if np.random.uniform(0, 1) < self.epsilon:
-            actions = np.random.random_integers(0, num_actions, 1)
+            actions = np.random.randint(0, num_actions, 1)
             action = actions[0]
         else:
             Q_values = Q[state][:num_actions]
@@ -331,9 +331,9 @@ if __name__ == '__main__':
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               'QLV3.2.txt'
+               'QLV3_2500.txt'
     # '1000V3.txt'
-    time = [1000, 5000]
+    time = [100]#[1000, 5000]
     with open(filename, 'a') as f:
         for t in time:
             sarsa_train.size_time_steps = t

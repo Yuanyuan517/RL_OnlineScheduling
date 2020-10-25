@@ -3,5 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/RL-RealtimeScheduling" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/gym" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/realtime_jsp/algorithms/keras-rl" vcs="Git" />
   </component>
 </project>

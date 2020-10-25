@@ -79,9 +79,15 @@ class Plotting:
         fig2 = plt.figure(figsize=(10,5))
         rewards_smoothed = pd.Series(stats.episode_rewards).rolling(smoothing_window, min_periods=smoothing_window).mean()
         plt.plot(rewards_smoothed)
-        plt.xlabel("Episode")
-        plt.ylabel("Episode Reward (Smoothed)")
+        label_x = plt.xlabel("Episode")
+        label_y = plt.ylabel("Episode Reward (Smoothed)")
+        label_x.set_color("black")
+        label_y.set_color("black")
+        [i.set_color("black") for i in plt.gca().get_xticklabels()]
+        [i.set_color("black") for i in plt.gca().get_yticklabels()]
         plt.title("Episode Reward over Time (Smoothed over window size {})".format(smoothing_window))
+        # plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+        plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
         if noshow:
             plt.close(fig2)
         else:
@@ -103,9 +109,15 @@ class Plotting:
         obj_smoothed = pd.Series(stats.episode_obj).rolling(smoothing_window,
                                                                     min_periods=smoothing_window).mean()
         plt.plot(obj_smoothed)
-        plt.xlabel("Episode")
-        plt.ylabel("Episode Total Tardiness")
+        label_x = plt.xlabel("Episode")
+        label_y = plt.ylabel("Episode Total Tardiness")
         plt.title("Episode Total Tardiness over Time (Smoothed over window size {})".format(smoothing_window))
+        label_x.set_color("black")
+        label_y.set_color("black")
+        [i.set_color("black") for i in plt.gca().get_xticklabels()]
+        [i.set_color("black") for i in plt.gca().get_yticklabels()]
+        # plt.ticklabel_format(axis="x", style="sci", scilimits=(0,0))
+        plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
         if noshow:
             plt.close(fig4)
         else:

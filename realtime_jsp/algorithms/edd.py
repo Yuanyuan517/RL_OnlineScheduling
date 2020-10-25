@@ -2,11 +2,11 @@ import numpy as np
 import itertools
 import matplotlib.style
 from collections import defaultdict
-from realtime_jsp.simulators.eventsimulator2 import EventSimulator2
+from simulators.eventsimulator2 import EventSimulator2
 from configparser import ConfigParser
-from realtime_jsp.environments.JSPEnv2 import JSPEnv2
-from realtime_jsp.utilities.plotting import Plotting
-from realtime_jsp.simulators.utility import generate_random_seeds
+from environments.JSPEnv2 import JSPEnv2
+from utilities.plotting import Plotting
+from simulators.utility import generate_random_seeds
 
 '''
 Based on: https://www.geeksforgeeks.org/q-learning-in-python/
@@ -119,7 +119,7 @@ class EDD():
 
                     # done is True if episode terminated
                     if done:
-                        print("Episode finished")
+                        print("Episode finished", i_episode)
                         break
 
                     self.env.state = next_state

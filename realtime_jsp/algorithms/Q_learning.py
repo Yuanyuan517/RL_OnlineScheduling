@@ -2,11 +2,11 @@ import numpy as np
 import itertools
 import matplotlib.style
 from collections import defaultdict
-from realtime_jsp.simulators.eventsimulator2 import EventSimulator2
+from simulators.eventsimulator2 import EventSimulator2
 from configparser import ConfigParser
-from realtime_jsp.environments.JSPEnv2 import JSPEnv2
-from realtime_jsp.utilities.plotting import Plotting
-from realtime_jsp.simulators.utility import generate_random_seeds
+from environments.JSPEnv2 import JSPEnv2
+from utilities.plotting import Plotting
+from simulators.utility import generate_random_seeds
 
 
 '''
@@ -23,13 +23,13 @@ class q_learning_funcs():
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
         self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
-        self.num_episodes_train = 0#int(settings.get('algorithms', 'num_episodes_train'))
+        self.num_episodes_train = 1#int(settings.get('algorithms', 'num_episodes_train'))
         self.num_episodes_test = int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
         # calculate number of actions and states
-        self.criteria = 2  # 1 is only DD, 2 DD+pt, 3 random
+        self.criteria = 1  # 1 is only DD, 2 DD+pt, 3 random
         self.obj = 2  # 1 is min max tardiness, 2 is min total tardiness
         self.name = "Q"
 
@@ -292,7 +292,7 @@ class q_learning_funcs():
                     if self.obj == 1:
                         stats.episode_obj[i_episode] = max_tardinees
                     else:
-                        #print("TOtal ", total_tardiness, " tardi ", tardi)
+                        # print("TOtal ", total_tardiness, " tardi ", tardi)
                         stats.episode_obj[i_episode] = total_tardiness
                     #stats.episode_rewards[i_episode] = reward
 
@@ -341,4 +341,4 @@ if __name__ == '__main__':
         # Q_learn.num_episodes = 10
         Q2, stats2 = Q_learn.fixed_seed(Q, plotting)
         print("New Stats", stats2)
-        plotting.plot_episode_stats(stats2)
+        # plotting.plot_episode_stats(stats2)

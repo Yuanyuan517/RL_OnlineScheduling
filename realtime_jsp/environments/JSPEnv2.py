@@ -1,8 +1,8 @@
 import gym
 from gym import spaces
 import numpy as np
-from realtime_jsp.environments.machines.machine import Machine
-from realtime_jsp.simulators.eventsimulator2 import EventSimulator2
+from environments.machines.machine import Machine
+from simulators.eventsimulator2 import EventSimulator2
 from configparser import ConfigParser
 
 
@@ -102,6 +102,8 @@ class JSPEnv2(gym.Env):
         self.TT = 0
 
         self.criteria = 1
+        # June 16, 2020, for debugging the instance 36
+        self.episode = 0
 
     '''
     Section 3.1 Decisions are made while 1) a job arrives at an idle machine; 2) a machine with a non-empty queue
@@ -132,16 +134,19 @@ class JSPEnv2(gym.Env):
             # preemption
             if self.machine.idle is False:
                 assigned_job = self.machine.assigned_job
-                # print("Check before reassigning job ", job_to_process)
+                if self.episode == 35:
+                    print("Check before reassigning job ", job_to_process)
                 self.machine.process_job(job_to_process, t)
                 assigned_job.pt -= t - assigned_job.start_processing_t
                 self.waiting_jobs[action] = assigned_job
                 # del self.waiting_jobs[action]
-                #print("Removed job ", job_to_process.to_string(), " size ", len(self.waiting_jobs))
+                if self.episode == 35:
+                    print("Process job ", job_to_process.to_string(), " size ", len(self.waiting_jobs))
             else:
                 self.machine.process_job(job_to_process, t)
                 del self.waiting_jobs[action]
-                #print("Removed job ", job_to_process.to_string(), " size ", len(self.waiting_jobs))
+                if self.episode == 35:
+                    print("Process job ", job_to_process.to_string(), " size ", len(self.waiting_jobs))
 
         # if EDD
         if action == -1:

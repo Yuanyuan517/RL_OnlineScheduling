@@ -1,12 +1,12 @@
-from realtime_jsp.algorithms.sarsa import SARSA
-from realtime_jsp.algorithms.Q_learning import q_learning_funcs
-from realtime_jsp.algorithms.edd import EDD
-from realtime_jsp.algorithms.random import Random
+from algorithms.sarsa import SARSA
+from algorithms.Q_learning import q_learning_funcs
+from algorithms.edd import EDD
+from algorithms.random_self import Random
 import numpy as np
 import matplotlib.style
 from configparser import ConfigParser
-from realtime_jsp.environments.JSPEnv2 import JSPEnv2
-from realtime_jsp.utilities.plotting import Plotting
+from environments.JSPEnv2 import JSPEnv2
+from utilities.plotting import Plotting
 
 
 if __name__ == '__main__':
@@ -18,19 +18,19 @@ if __name__ == '__main__':
                      '/etc/app.ini')
     print(res)
     #  Train the model
-    algos = [q_learning_funcs, SARSA]
-    algos2 = []#[Random, EDD]
+    algos = [q_learning_funcs, SARSA]#[q_learning_funcs]#[q_learning_funcs, SARSA]
+    algos2 = [Random, EDD]
     criterion = [1, 2, 3]
     num_episodes_trains = _conf.get('algorithms', 'num_episodes_trains').split()
     lambda_value = 1/int(_conf.get('event', 'interarrival_time'))
 
-    obj = 1
-    compare_best_setting = True
+    obj = 2
+    compare_best_setting = False
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               'bestSettingQSarsaV3.txt'
-               #'1000V3.txt'
+               '2500V3.txt'
+               #'bestSettingQSarsaV3.txt'
     with open(filename, 'a') as f:
         # algo of random and EDD
         for algo2 in algos2:

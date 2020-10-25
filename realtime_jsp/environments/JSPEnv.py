@@ -1,7 +1,7 @@
 import gym
 from gym import spaces
 import numpy as np
-import random
+import random_self
 from realtime_jsp.environments.machines.machine import Machine
 from realtime_jsp.simulators.eventsimulator import EventSimulator
 from configparser import ConfigParser
@@ -189,7 +189,7 @@ class JSPEnv(gym.Env):
         # initialize jobs processed on machines
         # num_process = random.randint(0, 1)
         # process_jobs = self.create_jobs(num_process)
-        num_travel = random.randint(0, 6)
+        num_travel = random_self.randint(0, 6)
         travel_jobs = simulator.arrive_new_job(t, num_travel) # self.create_jobs(num_travel)
         # print("Debug created machine with size ", len(machines))
 

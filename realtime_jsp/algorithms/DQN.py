@@ -1,5 +1,7 @@
+from random import sample
+
 import numpy as np
-import random
+import random_self
 #from IPython.display import clear_output
 from collections import deque
 import progressbar
@@ -10,11 +12,11 @@ import gym
 from tensorflow.keras import models, Model, Sequential
 from tensorflow.keras.layers import Dense, Embedding, Reshape
 from tensorflow.keras.optimizers import Adam
-from realtime_jsp.environments.JSPEnv2 import JSPEnv2
+from environments.JSPEnv2 import JSPEnv2
 from configparser import ConfigParser
-from realtime_jsp.simulators.eventsimulator2 import EventSimulator2
-from realtime_jsp.utilities.plotting import Plotting
-from realtime_jsp.simulators.utility import generate_random_seeds
+from simulators.eventsimulator2 import EventSimulator2
+from utilities.plotting import Plotting
+from simulators.utility import generate_random_seeds
 
 # https://rubikscode.net/2019/07/08/deep-q-learning-with-python-and-tensorflow-2-0/
 
@@ -96,7 +98,7 @@ class dqn:
 
     # pick random samples from the experience replay memory and train the Q-Network
     def retrain(self, batch_size):
-        minibatch = random.sample(self.expirience_replay, batch_size)
+        minibatch = sample(self.expirience_replay, batch_size)
 
         for state, action, reward, next_state, terminated in minibatch:
             array1 = self.convert_2_dim(state)
