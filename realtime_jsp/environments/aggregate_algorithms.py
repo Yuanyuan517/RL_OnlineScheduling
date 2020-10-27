@@ -29,7 +29,8 @@ if __name__ == '__main__':
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               '2500V3.txt'
+                '2500_latenessV1.txt'
+              # '2500V3.txt'
                #'bestSettingQSarsaV3.txt'
     with open(filename, 'a') as f:
         # algo of random and EDD

@@ -24,13 +24,13 @@ class Q_Lambda():
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
         self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
-        self.num_episodes_train = 1 #500#int(settings.get('algorithms', 'num_episodes_train'))
-        self.num_episodes_test = 1#50#int(settings.get('algorithms', 'num_episodes_test'))
+        self.num_episodes_train = 500#int(settings.get('algorithms', 'num_episodes_train'))
+        self.num_episodes_test = 50#int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
         # calculate number of actions and states
-        self.criterion = [2]#[1, 2]#, 3]
+        self.criterion = [1, 3]#[1, 2]#, 3]
         self.criteria = 1  # 1 is only DD, 2 DD+pt, 3 random
         self.obj = 2  # 1 is min max tardiness, 2 is min total tardiness
         self.name = "QLamb"
@@ -340,10 +340,11 @@ if __name__ == '__main__':
     #  Train the model
     Q_L = Q_Lambda(env, _conf)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               'QLV3_2500.txt'
+               'QL_lateness_2500.txt'
+               # 'QLV3_2500.txt'
                #'bestSettingQL.txt'
     # '1000V3.txt'
-    time = [100]#, 5000]
+    time = [2500] #100]#, 5000]
     with open(filename, 'a') as f:
         for t in time:
             Q_L.size_time_steps = t

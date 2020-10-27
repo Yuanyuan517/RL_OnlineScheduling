@@ -100,7 +100,7 @@ class EDD():
                     # Update statistics
                     total_tardiness += tardi
                     # EDIT: April 20, 2020. use tardiness instead of reward
-                    #total_tardiness += tardiness
+                    # total_tardiness += tardiness
                     # stats.episode_rewards[i_episode] += reward
                     stats.episode_lengths[i_episode] = t
 

@@ -333,8 +333,8 @@ if __name__ == '__main__':
         Q_learn.num_episodes_train = int(num)
         # event simulator is not fixed
         Q, stats = Q_learn.learn(plotting)
-        print("stats ", stats)
-        plotting.plot_episode_stats(stats)
+        #print("stats ", stats)
+        #plotting.plot_episode_stats(stats)
 
         # event simulator is fixed
         # test the model with calculated Q

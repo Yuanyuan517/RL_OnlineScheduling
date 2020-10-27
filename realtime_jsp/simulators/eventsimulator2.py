@@ -13,6 +13,7 @@ class EventSimulator2:
         self.max_processing_time = int(settings.get('job', 'max_processing_time'))
         self.min_num_release_job = int(settings.get('job', 'min_num_release_job'))
         self.max_num_release_job = int(settings.get('job', 'max_num_release_job'))
+        # self.obj = int(settings.get('objective', 'obj'))
         self.job_released = False
         self.last_release_time = 0
         self.interarrival_time = 0
@@ -114,24 +115,27 @@ class EventSimulator2:
             idles.append(idle)
         return idles
 
+    # EDIT-25th Oct, 2020: to test the total lateness, return lateness instead of tardinesss
     def check_machine_idle_and_update(self, current_time, machine, granularity):
         processed_pt = 0
-        tardiness = 0
+        lateness = 0
+        # tardiness = 0
         # print("In event_simu, machine num is ", len(machines))
         if not machine.idle:
             job = machine.assigned_job
             remained_pt = job.pt - (current_time - job.start_processing_t)
             if remained_pt <= 0:
                 processed_pt += granularity
-                tardiness = max(0, current_time - job.due_t + remained_pt)
+                lateness = current_time - job.due_t + remained_pt
+                # tardiness = max(0, current_time - job.due_t + remained_pt)
                 # print("job Id ", job.counter, " Tardiness ", tardiness, " remain ", remained_pt, " currentT ", current_time)
                 machine.reset()
             else:
                 job.pt = remained_pt
                 machine.assigned_job = job
-            if self.episode == 35:
-                print("Debug simulator， remained pt is ", remained_pt, " job id ", job.counter, " machine is idle? ", machine.idle,
-                   " tardiness ", tardiness, " currentT ", current_time)
+           # if self.episode == 35:
+            #    print("Debug simulator， remained pt is ", remained_pt, " job id ", job.counter, " machine is idle? ", machine.idle,
+             #      " tardiness ", tardiness, " currentT ", current_time)
         updated_machine = machine
-        return updated_machine, tardiness
+        return updated_machine, lateness #tardiness
 

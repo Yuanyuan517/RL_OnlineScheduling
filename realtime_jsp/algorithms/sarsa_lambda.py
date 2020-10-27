@@ -331,7 +331,8 @@ if __name__ == '__main__':
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               'QLV3_2500.txt'
+               'QL_lateness_2500.txt'
+               #'QLV3_2500.txt'
     # '1000V3.txt'
     time = [100]#[1000, 5000]
     with open(filename, 'a') as f:
