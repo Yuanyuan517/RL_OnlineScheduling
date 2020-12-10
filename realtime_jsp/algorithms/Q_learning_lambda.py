@@ -30,7 +30,7 @@ class Q_Lambda():
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
         # calculate number of actions and states
-        self.criterion = [1, 3]#[1, 2]#, 3]
+        self.criterion = [1, 2, 3]#[1, 2]#, 3]
         self.criteria = 1  # 1 is only DD, 2 DD+pt, 3 random
         self.obj = 2  # 1 is min max tardiness, 2 is min total tardiness
         self.name = "QLamb"
@@ -340,11 +340,11 @@ if __name__ == '__main__':
     #  Train the model
     Q_L = Q_Lambda(env, _conf)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               'QL_lateness_2500.txt'
+               'QL_lateness_5000.txt'
                # 'QLV3_2500.txt'
                #'bestSettingQL.txt'
     # '1000V3.txt'
-    time = [2500] #100]#, 5000]
+    time = [5000] #100]#, 5000]
     with open(filename, 'a') as f:
         for t in time:
             Q_L.size_time_steps = t

@@ -29,7 +29,8 @@ if __name__ == '__main__':
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-                '2500_latenessV1.txt'
+                '5000_latenessV1.txt'
+                #'2500_latenessV1.txt'
               # '2500V3.txt'
                #'bestSettingQSarsaV3.txt'
     with open(filename, 'a') as f:
@@ -71,7 +72,7 @@ if __name__ == '__main__':
                         cri = "DD_pt"
                     else:
                         cri = "random"
-                    s = train.name+" "+str(num)+" "+cri#+" "+str(lambda_value)
+                    s = train.name+" "+str(num)+" "+cri #+" "+str(lambda_value)
                     f.write(s)
                     f.write(" ")
                     b = np.matrix(stats2.episode_obj)

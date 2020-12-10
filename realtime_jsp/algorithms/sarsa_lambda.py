@@ -22,13 +22,13 @@ class SARSA_L():
         self.discount_factor = float(settings.get('Q_learning', 'discount_factor'))
         self.alpha = float(settings.get('Q_learning', 'alpha'))
         self.num_episodes_trains = settings.get('algorithms', 'num_episodes_trains').split()
-        self.num_episodes_train = 1  # int(settings.get('algorithms', 'num_episodes_train'))
-        self.num_episodes_test = 1  # int(settings.get('algorithms', 'num_episodes_test'))
+        self.num_episodes_train = 500  # int(settings.get('algorithms', 'num_episodes_train'))
+        self.num_episodes_test = 50  # int(settings.get('algorithms', 'num_episodes_test'))
         self.size_time_steps = int(settings.get('algorithms', 'size_time_steps'))
         self.initial_seed = int(settings.get('algorithms', 'initial_seed'))
         self.episode_seeds = generate_random_seeds(self.initial_seed, self.num_episodes_test)
         # calculate number of actions and states
-        self.criterion = [3]#[1, 2, 3]
+        self.criterion = [1, 2, 3]
         self.criteria = 1 # 1 is only DD, 2 DD+pt, 3 random
         self.obj = 2 # 1 is min max tardiness, 2 is min total tardiness
         self.name = "SarsaLambda"
@@ -327,14 +327,15 @@ if __name__ == '__main__':
     print(res)
     #  Train the model
     sarsa_train = SARSA_L(env, _conf)
-    sarsa_train.criteria = 1
+    # sarsa_train.criteria = 1
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               'QL_lateness_2500.txt'
+               'QL_lateness_5000.txt'
+               #'QL_lateness_2500.txt'
                #'QLV3_2500.txt'
     # '1000V3.txt'
-    time = [100]#[1000, 5000]
+    time = [5000]#[1000, 5000]
     with open(filename, 'a') as f:
         for t in time:
             sarsa_train.size_time_steps = t
