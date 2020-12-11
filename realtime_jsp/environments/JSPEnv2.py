@@ -191,7 +191,8 @@ class JSPEnv2(gym.Env):
         '''
 
         done = bool(new_state == 0)
-        return new_state, tardi, done, updated_machine #{}
+        # Dec/10/2020: use Just in time, so get the absolute value instead of lateness.
+        return new_state, abs(tardi), done, updated_machine #{}
 
     def takeDueTime(self, job):
         # print("job type ", self.criteria)

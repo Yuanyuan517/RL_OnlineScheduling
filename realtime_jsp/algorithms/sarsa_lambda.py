@@ -331,11 +331,11 @@ if __name__ == '__main__':
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               'QL_lateness_5000.txt'
+               'QL_JIT_2500.txt'
                #'QL_lateness_2500.txt'
                #'QLV3_2500.txt'
     # '1000V3.txt'
-    time = [5000]#[1000, 5000]
+    time = [2500]#[1000, 5000]
     with open(filename, 'a') as f:
         for t in time:
             sarsa_train.size_time_steps = t

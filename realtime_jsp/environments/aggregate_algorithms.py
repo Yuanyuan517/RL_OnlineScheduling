@@ -19,7 +19,7 @@ if __name__ == '__main__':
     print(res)
     #  Train the model
     algos = [q_learning_funcs, SARSA]#[q_learning_funcs]#[q_learning_funcs, SARSA]
-    algos2 = [Random, EDD]
+    algos2 = []#[Random, EDD]
     criterion = [1, 2, 3]
     num_episodes_trains = _conf.get('algorithms', 'num_episodes_trains').split()
     lambda_value = 1/int(_conf.get('event', 'interarrival_time'))
@@ -29,7 +29,8 @@ if __name__ == '__main__':
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-                '5000_latenessV1.txt'
+               '2500_JITV1.txt'
+                # '5000_latenessV1.txt'
                 #'2500_latenessV1.txt'
               # '2500V3.txt'
                #'bestSettingQSarsaV3.txt'
@@ -57,7 +58,7 @@ if __name__ == '__main__':
                         env.interarrival_mean_time = 5 # compare scale 10, 20, 5
                     train = algo(env, _conf)
                     if compare_best_setting:
-                        train.size_time_steps = 5000
+                        train.size_time_steps = 2500
                     train.obj = obj
                     train.criteria = c
                     train.num_episodes_train = int(num)
