@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     # plotting.plot_episode_stats(stats)
     filename = '/Users/yuanyuanli/PycharmProjects/RL-RealtimeScheduling/realtime_jsp/results/' \
-               '2500_JITV1.txt'
+               '5000_JITV1.txt'
                 # '5000_latenessV1.txt'
                 #'2500_latenessV1.txt'
               # '2500V3.txt'
