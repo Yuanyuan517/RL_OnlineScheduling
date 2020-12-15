@@ -1,0 +1,198 @@
+sarsa 50 DD 
+35
+
+sarsa 50 DD 
+35
+
+sarsa 50 DD 
+35
+
+sarsa 50 DD 
+35
+
+sarsa 50 DD 
+8 38
+
+sarsa 50 DD 
+8 38
+
+sarsa 50 DD 
+35 38 36 39 39
+
+sarsa 50 DD 
+35
+
+sarsa 50 DD 
+35 38 36 39 39
+
+sarsa 50 DD 
+35 38 36 39 39
+
+sarsa 50 DD 
+35 38 36 39 39
+
+sarsa 50 DD 
+35 38 36 39 39
+
+sarsa 50 DD 
+39 35 39 35 39
+
+sarsa 50 DD 
+39
+
+sarsa 50 DD 
+39
+
+sarsa 50 DD 
+39
+
+sarsa 50 DD 
+39
+
+sarsa 50 DD 
+39
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+37
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+740
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+119
+
+sarsa 50 DD 
+814
+
+sarsa 50 DD 
+661
+
+sarsa 50 DD 
+341
+
+sarsa 50 DD 
+345
+
+sarsa 50 DD 
+345
+
+sarsa 50 DD 
+345
+
+sarsa 50 DD 
+345
+
+sarsa 50 DD 
+345
+
+sarsa 50 DD 
+345
+
+sarsa 50 DD 
+345
+
+sarsa 50 DD 
+326
+
+sarsa 50 DD 
+630
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+630
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+0
+
+sarsa 50 DD 
+9002
+
+sarsa 500 DD 
+8864
+
+sarsa 1 DD 
+12714
+
+sarsa 100 DD 
+1012
+
+sarsa 100 DD 
+4714
+
+sarsa 1000 DD 
+9477
+
+sarsa 500 DD 
+5393
+
+sarsa 500 DD 
+5809
+
+sarsa 1000 DD 
+7189
+
+sarsa 100 DD 
+2044
+
+sarsa 50 DD 
+5807
+
+sarsa 300 DD 
+6401
+
+sarsa 100 DD 
+2044
+
