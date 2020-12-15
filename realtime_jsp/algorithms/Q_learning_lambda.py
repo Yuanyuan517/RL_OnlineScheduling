@@ -345,7 +345,7 @@ if __name__ == '__main__':
                # 'QLV3_2500.txt'
                #'bestSettingQL.txt'
     # '1000V3.txt'
-    time = [2500] #100]#, 5000]
+    time = [5000] #100]#, 5000]
     with open(filename, 'a') as f:
         for t in time:
             Q_L.size_time_steps = t
