@@ -43,10 +43,12 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27323cfe-cd83-4d8d-a702-19a4952bf321" name="Default" comment="save for the new results of JIT (V2)">
+    <list default="true" id="27323cfe-cd83-4d8d-a702-19a4952bf321" name="Default" comment="save for the new results of JIT (done)">
+      <change afterPath="$PROJECT_DIR$/realtime_jsp/results/bestSettingQL_JIT.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/realtime_jsp/algorithms/Q_learning_lambda.py" beforeDir="false" afterPath="$PROJECT_DIR$/realtime_jsp/algorithms/Q_learning_lambda.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/realtime_jsp/results/QL_JIT_2500.txt" beforeDir="false" afterPath="$PROJECT_DIR$/realtime_jsp/results/QL_JIT_2500.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/realtime_jsp/results/QL_JIT_5000.txt" beforeDir="false" afterPath="$PROJECT_DIR$/realtime_jsp/results/QL_JIT_5000.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/realtime_jsp/etc/app.ini" beforeDir="false" afterPath="$PROJECT_DIR$/realtime_jsp/etc/app.ini" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -551,7 +553,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Environment with single machine and random selection work" />
     <MESSAGE value="Add Q_learning" />
     <MESSAGE value="Use state id to store each state overcoming unhashable exception, but it doesnt work for selecting action from a set of actions belonging to a state" />
     <MESSAGE value="Q learning working version but with strange results" />
@@ -576,10 +577,11 @@
     <MESSAGE value="the version for calculating total earliness" />
     <MESSAGE value="save for the new results of JIT" />
     <MESSAGE value="save for the new results of JIT (V2)" />
-    <option name="LAST_COMMIT_MESSAGE" value="save for the new results of JIT (V2)" />
+    <MESSAGE value="save for the new results of JIT (done)" />
+    <option name="LAST_COMMIT_MESSAGE" value="save for the new results of JIT (done)" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="970" height="241" key="GridCell.Tab.0.bottom" timestamp="1607894568548">
+    <state width="707" height="248" key="GridCell.Tab.0.bottom" timestamp="1610616291511">
       <screen x="0" y="25" width="1440" height="827" />
     </state>
     <state width="1052" height="279" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1604167523184" />
@@ -590,9 +592,10 @@
     <state width="734" height="279" key="GridCell.Tab.0.bottom/0.23.1440.839@0.23.1440.839" timestamp="1603621659020" />
     <state width="734" height="279" key="GridCell.Tab.0.bottom/0.23.1440.840@0.23.1440.840" timestamp="1603813847031" />
     <state width="734" height="279" key="GridCell.Tab.0.bottom/0.23.1440.841@0.23.1440.841" timestamp="1603628091373" />
-    <state width="970" height="241" key="GridCell.Tab.0.bottom/0.25.1440.827@0.25.1440.827" timestamp="1607894568548" />
+    <state width="707" height="248" key="GridCell.Tab.0.bottom/0.25.1440.827/1440.25.1920.1055@0.25.1440.827" timestamp="1610616291511" />
+    <state width="692" height="241" key="GridCell.Tab.0.bottom/0.25.1440.827@0.25.1440.827" timestamp="1608047713922" />
     <state width="970" height="241" key="GridCell.Tab.0.bottom/0.25.1440.828@0.25.1440.828" timestamp="1607713728153" />
-    <state width="970" height="241" key="GridCell.Tab.0.center" timestamp="1607894568548">
+    <state width="707" height="248" key="GridCell.Tab.0.center" timestamp="1610616291510">
       <screen x="0" y="25" width="1440" height="827" />
     </state>
     <state width="1052" height="279" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1604167523183" />
@@ -603,9 +606,10 @@
     <state width="734" height="279" key="GridCell.Tab.0.center/0.23.1440.839@0.23.1440.839" timestamp="1603621659011" />
     <state width="734" height="279" key="GridCell.Tab.0.center/0.23.1440.840@0.23.1440.840" timestamp="1603813847031" />
     <state width="734" height="279" key="GridCell.Tab.0.center/0.23.1440.841@0.23.1440.841" timestamp="1603628091372" />
-    <state width="970" height="241" key="GridCell.Tab.0.center/0.25.1440.827@0.25.1440.827" timestamp="1607894568548" />
+    <state width="707" height="248" key="GridCell.Tab.0.center/0.25.1440.827/1440.25.1920.1055@0.25.1440.827" timestamp="1610616291510" />
+    <state width="692" height="241" key="GridCell.Tab.0.center/0.25.1440.827@0.25.1440.827" timestamp="1608047713921" />
     <state width="970" height="241" key="GridCell.Tab.0.center/0.25.1440.828@0.25.1440.828" timestamp="1607713728151" />
-    <state width="970" height="241" key="GridCell.Tab.0.left" timestamp="1607894568547">
+    <state width="707" height="248" key="GridCell.Tab.0.left" timestamp="1610616291509">
       <screen x="0" y="25" width="1440" height="827" />
     </state>
     <state width="1052" height="279" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1604167523182" />
@@ -616,9 +620,10 @@
     <state width="734" height="279" key="GridCell.Tab.0.left/0.23.1440.839@0.23.1440.839" timestamp="1603621659007" />
     <state width="734" height="279" key="GridCell.Tab.0.left/0.23.1440.840@0.23.1440.840" timestamp="1603813847030" />
     <state width="734" height="279" key="GridCell.Tab.0.left/0.23.1440.841@0.23.1440.841" timestamp="1603628091371" />
-    <state width="970" height="241" key="GridCell.Tab.0.left/0.25.1440.827@0.25.1440.827" timestamp="1607894568547" />
+    <state width="707" height="248" key="GridCell.Tab.0.left/0.25.1440.827/1440.25.1920.1055@0.25.1440.827" timestamp="1610616291509" />
+    <state width="692" height="241" key="GridCell.Tab.0.left/0.25.1440.827@0.25.1440.827" timestamp="1608047713921" />
     <state width="970" height="241" key="GridCell.Tab.0.left/0.25.1440.828@0.25.1440.828" timestamp="1607713728151" />
-    <state width="970" height="241" key="GridCell.Tab.0.right" timestamp="1607894568548">
+    <state width="707" height="248" key="GridCell.Tab.0.right" timestamp="1610616291510">
       <screen x="0" y="25" width="1440" height="827" />
     </state>
     <state width="1052" height="279" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1604167523184" />
@@ -629,12 +634,13 @@
     <state width="734" height="279" key="GridCell.Tab.0.right/0.23.1440.839@0.23.1440.839" timestamp="1603621659020" />
     <state width="734" height="279" key="GridCell.Tab.0.right/0.23.1440.840@0.23.1440.840" timestamp="1603813847031" />
     <state width="734" height="279" key="GridCell.Tab.0.right/0.23.1440.841@0.23.1440.841" timestamp="1603628091372" />
-    <state width="970" height="241" key="GridCell.Tab.0.right/0.25.1440.827@0.25.1440.827" timestamp="1607894568548" />
+    <state width="707" height="248" key="GridCell.Tab.0.right/0.25.1440.827/1440.25.1920.1055@0.25.1440.827" timestamp="1610616291510" />
+    <state width="692" height="241" key="GridCell.Tab.0.right/0.25.1440.827@0.25.1440.827" timestamp="1608047713922" />
     <state width="970" height="241" key="GridCell.Tab.0.right/0.25.1440.828@0.25.1440.828" timestamp="1607713728152" />
-    <state x="308" y="175" key="Vcs.Push.Dialog.v2" timestamp="1607894531102">
+    <state x="308" y="175" key="Vcs.Push.Dialog.v2" timestamp="1608026889212">
       <screen x="0" y="25" width="1440" height="827" />
     </state>
-    <state x="308" y="175" key="Vcs.Push.Dialog.v2/0.25.1440.827@0.25.1440.827" timestamp="1607894531102" />
+    <state x="308" y="175" key="Vcs.Push.Dialog.v2/0.25.1440.827@0.25.1440.827" timestamp="1608026889212" />
     <state x="308" y="175" key="Vcs.Push.Dialog.v2/0.25.1440.828@0.25.1440.828" timestamp="1607713696952" />
   </component>
   <component name="XDebuggerManager">
@@ -652,7 +658,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/realtime_jsp/algorithms/Q_learning_lambda.py</url>
-          <line>352</line>
+          <line>353</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
