@@ -52,7 +52,7 @@ class dqn:
         self.criteria = 2  # 1 is only DD, 2 DD+pt, 3 random
         self.obj = 2  # 1 is min max tardiness, 2 is min total tardiness
         self.name = "DQN"
-        self.save_path = "dqnV2.h5"
+        self.save_path = "dqnV3_JIT.h5"
 
     # the agent has to store previous experiences in a local memory
     def store(self, state, action, reward, next_state, terminated):
@@ -312,12 +312,12 @@ if __name__ == '__main__':
 
     agent = dqn(env, optimizer, _conf)
     # load saved model
-    agent.q_network = models.load_model(agent.save_path)
-    agent.q_network.summary()
+    #agent.q_network = models.load_model(agent.save_path)
+    #agent.q_network.summary()
     # train
-    #for num in agent.num_episodes_trains:
-    #    agent.num_episodes_train = int(num)
-    #    agent.training_steps()
+    for num in agent.num_episodes_trains:
+        agent.num_episodes_train = int(num)
+        agent.training_steps()
     # test
     matplotlib.style.use('ggplot')
     plotting = Plotting()

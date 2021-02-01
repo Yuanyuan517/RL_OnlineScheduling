@@ -80,7 +80,7 @@ class EventSimulator2:
             due_t = int(ints[i]) +pts[i]+ self.current_time+1  # Can be modified
             job = JobDue(due_t, pts[i], -1)
             job.setID()
-            print("Released job ", job.to_string(), " at time ", self.current_time)
+            #print("Released job ", job.to_string(), " at time ", self.current_time)
             jobs.append(job)
             # self.total_jobs.append(job)
             self.total_jobs.append(JobDue(due_t, pts[i], -1))
@@ -98,7 +98,7 @@ class EventSimulator2:
         if not self.random:
             np.random.seed(self.seed)
         num = int(np.random.exponential(self.interarrival_mean_time, 1))
-        print("next interrival is ", num)
+        #print("next interrival is ", num)
         return num
 
     # TO DO: add arrival like release
